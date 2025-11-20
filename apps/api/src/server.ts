@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { createApp } from "./app";
 import { initializeFirebase } from "./lib/firebase-initializer";
+import { disconnectRedis } from "./lib/redis-client";
 import { Server } from "http";
 
 dotenv.config();
@@ -51,18 +52,23 @@ const server: Server = app.listen(port, () => {
 process.on("SIGTERM", async () => {
   console.log("\n⚠ SIGTERM received, closing API server gracefully...");
 
-  server.close((err) => {
+  server.close(async (err) => {
     if (err) {
       console.error("✗ Error closing server:", err);
+      await disconnectRedis();
       process.exit(1);
     }
+    
     console.log("✓ Server closed successfully");
+    await disconnectRedis();
+    console.log("✓ Redis connection closed");
     process.exit(0);
   });
 
   // Force close after 10 seconds
-  setTimeout(() => {
+  setTimeout(async () => {
     console.error("⚠ Forcefully shutting down after timeout");
+    await disconnectRedis();
     process.exit(1);
   }, 10000);
 });
@@ -70,18 +76,23 @@ process.on("SIGTERM", async () => {
 process.on("SIGINT", async () => {
   console.log("\n⚠ SIGINT received (Ctrl+C), closing API server gracefully...");
 
-  server.close((err) => {
+  server.close(async (err) => {
     if (err) {
       console.error("✗ Error closing server:", err);
+      await disconnectRedis();
       process.exit(1);
     }
+    
     console.log("✓ Server closed successfully");
+    await disconnectRedis();
+    console.log("✓ Redis connection closed");
     process.exit(0);
   });
 
   // Force close after 10 seconds
-  setTimeout(() => {
+  setTimeout(async () => {
     console.error("⚠ Forcefully shutting down after timeout");
+    await disconnectRedis();
     process.exit(1);
   }, 10000);
 });

@@ -69,3 +69,17 @@ export const isRedisHealthy = async (): Promise<boolean> => {
     return false;
   }
 };
+
+export const disconnectRedis = async (): Promise<void> => {
+  if (redisClient) {
+    const client = redisClient;
+    redisClient = null;
+    try {
+      await client.quit();
+    } catch (error) {
+      console.error("[API Redis] Error during disconnect:", error);
+      // Force disconnect if quit fails
+      client.disconnect();
+    }
+  }
+};

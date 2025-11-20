@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { initializeFirebase } from "./lib/firebase-initializer";
 import { createWorker } from "./queue/worker-initializer";
+import { disconnectRedis } from "./lib/redis-client";
 
 dotenv.config();
 
@@ -49,9 +50,12 @@ process.on("SIGTERM", async () => {
   try {
     await worker.close();
     console.log("✓ Worker closed successfully");
+    await disconnectRedis();
+    console.log("✓ Redis connection closed");
     process.exit(0);
   } catch (error) {
     console.error("✗ Error closing worker:", error);
+    await disconnectRedis();
     process.exit(1);
   }
 });
@@ -61,9 +65,12 @@ process.on("SIGINT", async () => {
   try {
     await worker.close();
     console.log("✓ Worker closed successfully");
+    await disconnectRedis();
+    console.log("✓ Redis connection closed");
     process.exit(0);
   } catch (error) {
     console.error("✗ Error closing worker:", error);
+    await disconnectRedis();
     process.exit(1);
   }
 });
