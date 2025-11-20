@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "node scripts/start-all-dev.js",
     "build": "pnpm -r build",
+    "test": "pnpm test:api && pnpm test:worker && pnpm test:utils",
+    "test:api": "pnpm --filter @fluximage/api test",
+    "test:worker": "pnpm --filter @fluximage/worker test",
+    "test:utils": "pnpm --filter @fluximage/utils test",
     "api:dev": "node scripts/start-with-redis.js api",
     "worker:dev": "node scripts/start-with-redis.js worker",
     "web:dev": "pnpm --filter @fluximage/web dev",

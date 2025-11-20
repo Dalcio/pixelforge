@@ -7,7 +7,9 @@
     "dev": "tsx watch src/worker.ts",
     "build": "tsc",
     "start": "node dist/worker.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@fluximage/types": "workspace:*",
@@ -22,6 +24,7 @@
   "devDependencies": {
     "@types/node": "^20.10.6",
     "typescript": "^5.3.3",
-    "tsx": "^4.7.0"
+    "tsx": "^4.7.0",
+    "vitest": "^1.1.0"
   }
 }
