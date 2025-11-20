@@ -1,42 +1,19 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-venv/
-ENV/
-env/
-
-# IDE
-.vscode/
-.idea/
+node_modules
+dist
+build
+.env
+.env.local
+.env.production
+*.log
+coverage
+.DS_Store
+.vscode
+.idea
 *.swp
 *.swo
-*~
+.firebase
+.turbo
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
+# Firebase Admin SDK private keys
+*firebase-adminsdk*.json
+packages/config/*.json

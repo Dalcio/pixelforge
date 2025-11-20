@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 200 90% 55%;
+    --color-primary-light: 200 100% 70%;
+    --color-primary-dark: 200 80% 45%;
+    --color-secondary: 180 85% 50%;
+    --color-accent: 160 75% 55%;
+    --color-success: 142 76% 45%;
+    --color-warning: 38 92% 50%;
+    --color-error: 0 84% 60%;
+    --color-text: 210 40% 20%;
+    --color-text-secondary: 210 20% 50%;
+    --color-border-focus: 200 90% 55%;
+  }
+
+  body {
+    @apply text-[hsl(var(--color-text))] antialiased min-h-screen;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background: linear-gradient(
+      135deg,
+      #e0f2fe 0%,
+      #dbeafe 25%,
+      #bfdbfe 50%,
+      #a5f3fc 75%,
+      #99f6e4 100%
+    );
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        circle at 20% 30%,
+        rgba(56, 189, 248, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 70%,
+        rgba(6, 182, 212, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(20, 184, 166, 0.1) 0%,
+        transparent 50%
+      );
+    animation: meshMove 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @keyframes meshMove {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(30px, -30px) scale(1.05);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.95);
+    }
+  }
+}
+
+@layer components {
+  /* Focus visible styles for keyboard navigation */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-border-focus))] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent;
+  }
+
+  /* Button styles */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-sm transition-all duration-200 focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 text-white hover:from-blue-700 hover:via-cyan-700 hover:to-teal-700 active:scale-95;
+    font-weight: 600;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gradient-to-r from-blue-100 to-cyan-100 text-[hsl(var(--color-text))] hover:from-blue-200 hover:to-cyan-200;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-white/60 backdrop-blur-xl rounded-3xl relative;
+  }
+
+  .card-gradient-border {
+    position: relative;
+    background: linear-gradient(white, white) padding-box,
+      linear-gradient(135deg, #38bdf8, #06b6d4, #14b8a6) border-box;
+    border: 3px solid transparent;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full px-5 py-4 backdrop-blur-sm rounded-2xl text-[hsl(var(--color-text))] placeholder:text-[hsl(var(--color-text-secondary))] transition-all duration-200 focus-ring focus:scale-[1.02];
+    background: linear-gradient(white, white) padding-box,
+      linear-gradient(135deg, #38bdf8, #06b6d4, #14b8a6) border-box;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  }
+
+  .input:focus {
+    box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.2),
+      0 4px 6px -2px rgba(56, 189, 248, 0.1);
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold;
+  }
+
+  .badge-pending {
+    @apply badge bg-gradient-to-r from-yellow-400 to-orange-400 text-white;
+  }
+
+  .badge-processing {
+    @apply badge bg-gradient-to-r from-blue-400 to-cyan-400 text-white;
+  }
+
+  .badge-completed {
+    @apply badge bg-gradient-to-r from-green-400 to-emerald-400 text-white;
+  }
+
+  .badge-failed {
+    @apply badge bg-gradient-to-r from-red-400 to-pink-400 text-white;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--color-border)) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--color-border));
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--color-primary));
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
