@@ -31,6 +31,7 @@ Links the rules files to Firebase services.
 ## Prerequisites
 
 1. **Firebase CLI** installed:
+
    ```bash
    npm install -g firebase-tools
    ```
@@ -69,6 +70,7 @@ firebase deploy --only firestore:rules,storage:rules
 ```
 
 **Expected output:**
+
 ```
 ✔ Deploy complete!
 
@@ -78,6 +80,7 @@ Project Console: https://console.firebase.google.com/project/your-project/overvi
 ### Step 3: Verify Deployment
 
 1. **Firestore Rules**:
+
    - Go to [Firebase Console](https://console.firebase.google.com)
    - Navigate to **Firestore Database** → **Rules** tab
    - Verify rules match `firestore.rules`
@@ -93,8 +96,8 @@ Project Console: https://console.firebase.google.com/project/your-project/overvi
 ```javascript
 // From browser console on web app
 const db = firebase.firestore();
-const jobs = await db.collection('jobs').get();
-console.log('Read access works:', jobs.size);
+const jobs = await db.collection("jobs").get();
+console.log("Read access works:", jobs.size);
 ```
 
 ### Test 2: Firestore - Create Job (Should Succeed)
@@ -102,15 +105,15 @@ console.log('Read access works:', jobs.size);
 ```javascript
 // From backend API or using Firebase Admin SDK
 const jobData = {
-  id: 'test-job-123',
-  inputUrl: 'https://example.com/image.jpg',
-  status: 'pending',
+  id: "test-job-123",
+  inputUrl: "https://example.com/image.jpg",
+  status: "pending",
   createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
 };
 
-await db.collection('jobs').doc('test-job-123').set(jobData);
-console.log('Job created successfully');
+await db.collection("jobs").doc("test-job-123").set(jobData);
+console.log("Job created successfully");
 ```
 
 ### Test 3: Firestore - Delete Job (Should Fail)
@@ -118,10 +121,10 @@ console.log('Job created successfully');
 ```javascript
 // From browser console (should fail)
 try {
-  await db.collection('jobs').doc('test-job-123').delete();
-  console.error('Delete should have failed!');
+  await db.collection("jobs").doc("test-job-123").delete();
+  console.error("Delete should have failed!");
 } catch (error) {
-  console.log('Delete correctly denied:', error.code);
+  console.log("Delete correctly denied:", error.code);
 }
 ```
 
@@ -137,13 +140,13 @@ curl https://firebasestorage.googleapis.com/v0/b/your-bucket/o/processed%2Ftest.
 ```javascript
 // From browser console (should fail)
 const storage = firebase.storage();
-const ref = storage.ref('processed/test.jpg');
+const ref = storage.ref("processed/test.jpg");
 
 try {
-  await ref.put(new Blob(['test']));
-  console.error('Upload should have failed!');
+  await ref.put(new Blob(["test"]));
+  console.error("Upload should have failed!");
 } catch (error) {
-  console.log('Upload correctly denied:', error.code);
+  console.log("Upload correctly denied:", error.code);
 }
 ```
 
@@ -167,16 +170,20 @@ firebase emulators:start --only firestore,storage
 Create `firestore.test.rules.spec.js`:
 
 ```javascript
-const { initializeTestEnvironment, assertSucceeds, assertFails } = require('@firebase/rules-unit-testing');
+const {
+  initializeTestEnvironment,
+  assertSucceeds,
+  assertFails,
+} = require("@firebase/rules-unit-testing");
 
-describe('Firestore Security Rules', () => {
+describe("Firestore Security Rules", () => {
   let testEnv;
 
   beforeAll(async () => {
     testEnv = await initializeTestEnvironment({
-      projectId: 'demo-test',
+      projectId: "demo-test",
       firestore: {
-        rules: fs.readFileSync('firestore.rules', 'utf8'),
+        rules: fs.readFileSync("firestore.rules", "utf8"),
       },
     });
   });
@@ -185,19 +192,20 @@ describe('Firestore Security Rules', () => {
     await testEnv.cleanup();
   });
 
-  test('allow read to jobs collection', async () => {
+  test("allow read to jobs collection", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
-    await assertSucceeds(db.collection('jobs').get());
+    await assertSucceeds(db.collection("jobs").get());
   });
 
-  test('deny delete on jobs', async () => {
+  test("deny delete on jobs", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
-    await assertFails(db.collection('jobs').doc('test').delete());
+    await assertFails(db.collection("jobs").doc("test").delete());
   });
 });
 ```
 
 Run tests:
+
 ```bash
 npm test
 ```
@@ -209,9 +217,10 @@ npm test
 ```javascript
 // Helper: Validate job status
 function isValidJobStatus(status) {
-  return status in ['pending', 'processing', 'completed', 'failed'];
+  return status in ["pending", "processing", "completed", "failed"];
 }
 ```
+
 Ensures status field only contains valid values.
 
 ```javascript
@@ -221,15 +230,23 @@ function isValidJobData(data) {
          // ... type checks
 }
 ```
+
 Ensures all required fields are present with correct types.
 
 ```javascript
 // Helper: Validate updates
 function isValidUpdate(data) {
-  let allowedFields = ['status', 'outputUrl', 'error', 'updatedAt', 'processedAt'];
+  let allowedFields = [
+    "status",
+    "outputUrl",
+    "error",
+    "updatedAt",
+    "processedAt",
+  ];
   return data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
 }
 ```
+
 Prevents modification of immutable fields (id, inputUrl, createdAt).
 
 ```javascript
@@ -238,6 +255,7 @@ allow create: if isValidJobData(request.resource.data) &&
                  request.resource.data.status == 'pending' &&
                  request.resource.data.id == jobId;
 ```
+
 - Validates structure
 - Ensures initial status is 'pending'
 - Ensures document ID matches job ID
@@ -248,6 +266,7 @@ allow update: if isValidUpdate(request.resource.data) &&
                  isValidJobStatus(request.resource.data.status) &&
                  request.resource.data.updatedAt is timestamp;
 ```
+
 - Only allows updating specific fields
 - Validates status values
 - Requires updatedAt timestamp
@@ -256,6 +275,7 @@ allow update: if isValidUpdate(request.resource.data) &&
 // Deny deletion
 allow delete: if false;
 ```
+
 Keeps jobs for audit trail.
 
 ### Storage Rules Breakdown
@@ -266,6 +286,7 @@ match /processed/{jobId} {
   allow write: if false; // No client writes
 }
 ```
+
 - Backend (Admin SDK) bypasses these rules
 - Clients can only read, not write
 
@@ -286,12 +307,14 @@ allow read: if request.auth != null;
 ### 2. Rate Limiting
 
 Firebase automatically rate-limits, but consider:
+
 - App Check for DDoS protection
 - Cloud Functions with rate limiting middleware
 
 ### 3. Monitoring
 
 Enable Firebase Security Rules monitoring:
+
 1. Go to Firebase Console
 2. Navigate to **Firestore/Storage** → **Rules** tab
 3. Click **Monitor** tab
@@ -300,6 +323,7 @@ Enable Firebase Security Rules monitoring:
 ### 4. Audit Logs
 
 Enable audit logging in Google Cloud Console:
+
 ```bash
 gcloud logging read "resource.type=cloud_firestore_database"
 ```
@@ -333,10 +357,12 @@ git checkout HEAD firestore.rules storage.rules
 ### Error: "PERMISSION_DENIED: Missing or insufficient permissions"
 
 **From Web App:**
+
 - Expected if trying to delete or write to storage
 - Check browser console for specific rule violation
 
 **From Backend:**
+
 - Ensure using Firebase Admin SDK (bypasses rules)
 - Check service account has necessary permissions
 
@@ -353,6 +379,7 @@ firebase firestore:rules --help
 ### Error: "Rules too complex"
 
 Firebase limits rule complexity. Simplify by:
+
 - Combining conditions
 - Removing redundant checks
 - Using helper functions efficiently
@@ -362,11 +389,13 @@ Firebase limits rule complexity. Simplify by:
 ### Regular Tasks
 
 1. **Review Denied Requests** (Weekly):
+
    ```bash
    firebase firestore:rules monitor
    ```
 
 2. **Update Rules** (As Needed):
+
    - Modify `firestore.rules` or `storage.rules`
    - Test locally with emulator
    - Deploy: `firebase deploy --only firestore:rules,storage:rules`
@@ -384,6 +413,7 @@ Firebase limits rule complexity. Simplify by:
 ✅ **Documented**: Clear deployment and testing procedures
 
 **Commands Cheat Sheet:**
+
 ```bash
 # Deploy rules
 firebase deploy --only firestore:rules,storage:rules
@@ -401,6 +431,7 @@ firebase firestore:rules monitor
 ---
 
 **Related Documentation:**
+
 - `firestore.rules` - Firestore security rules
 - `storage.rules` - Storage security rules
 - `firebase.json` - Firebase configuration
