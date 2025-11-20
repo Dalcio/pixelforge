@@ -187,6 +187,36 @@ export function JobCard({ job }: JobCardProps) {
     return date.toLocaleDateString();
   };
 
+  const getUserFriendlyError = (error: string): string => {
+    // Make error messages more user-friendly
+    if (error.includes('exceeds maximum allowed size')) {
+      const sizeMatch = error.match(/(\d+\.\d+)MB/);
+      const size = sizeMatch ? sizeMatch[1] : 'Unknown';
+      return `📦 File too large (${size}MB). Maximum size is 10MB.`;
+    }
+    if (error.includes('Invalid image format')) {
+      return '🖼️ Invalid image format. Please use JPG, PNG, GIF, or WebP.';
+    }
+    if (error.includes('maxContentLength')) {
+      return '📦 File too large. Maximum size is 10MB.';
+    }
+    if (error.includes('timeout')) {
+      return '⏱️ Request timed out. The image may be too large or server is slow.';
+    }
+    if (error.includes('Network error') || error.includes('ENOTFOUND')) {
+      return '🌐 Network error. Could not download the image.';
+    }
+    if (error.includes('URL is not reachable') || error.includes('404')) {
+      return '🔗 Image URL not accessible. Please check the link.';
+    }
+    if (error.includes('ECONNREFUSED')) {
+      return '⚠️ Cannot connect to image server.';
+    }
+    
+    // Return original error if no specific match
+    return error;
+  };
+
   const openModal = (url: string, alt: string) => {
     setModalImage({ url, alt });
     setShowModal(true);
@@ -306,7 +336,7 @@ export function JobCard({ job }: JobCardProps) {
               role="alert"
             >
               <p className="text-xs font-semibold text-red-600 mb-1">Failed</p>
-              <p className="text-xs text-red-500 line-clamp-2">{job.error}</p>
+              <p className="text-xs text-red-500 line-clamp-2">{getUserFriendlyError(job.error)}</p>
             </div>
           )}
 

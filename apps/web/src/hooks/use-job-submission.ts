@@ -33,8 +33,24 @@ export function useJobSubmission(
         }
         return job;
       } catch (err: any) {
-        const errorMessage =
-          err.message || "Failed to submit job. Please try again.";
+        let errorMessage = err.message || "Failed to submit job. Please try again.";
+
+        // Enhance specific error messages for better UX
+        if (errorMessage.includes('exceeds maximum allowed size')) {
+          // Extract file size if available
+          const sizeMatch = errorMessage.match(/(\d+\.\d+)MB/);
+          const size = sizeMatch ? sizeMatch[1] : 'Unknown';
+          errorMessage = `📦 File too large (${size}MB). Maximum allowed size is 10MB.`;
+        } else if (errorMessage.includes('Invalid image format')) {
+          errorMessage = '🖼️ Invalid image format. Please use JPG, PNG, GIF, or WebP.';
+        } else if (errorMessage.includes('URL is not reachable')) {
+          errorMessage = '🔗 Image URL is not accessible. Please check the URL and try again.';
+        } else if (errorMessage.includes('timeout')) {
+          errorMessage = '⏱️ Request timed out. The image may be too large or the server is slow.';
+        } else if (errorMessage.includes('Network error')) {
+          errorMessage = '🌐 Network error. Please check your connection and try again.';
+        }
+
         setError(errorMessage);
         return null;
       } finally {
