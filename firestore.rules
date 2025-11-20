@@ -1,0 +1,56 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isValidJobStatus(status) {
+      return status in ['pending', 'processing', 'completed', 'failed'];
+    }
+    
+    function isValidJobData(data) {
+      return data.keys().hasAll(['id', 'inputUrl', 'status', 'createdAt', 'updatedAt']) &&
+             data.id is string &&
+             data.inputUrl is string &&
+             isValidJobStatus(data.status) &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+    
+    function isValidUpdate(data) {
+      // Allow updating status, outputUrl, error, updatedAt, and processedAt
+      let allowedFields = ['status', 'outputUrl', 'error', 'updatedAt', 'processedAt'];
+      return data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
+    }
+    
+    // Jobs collection rules
+    match /jobs/{jobId} {
+      
+      // Anyone can read job data (for real-time updates in web app)
+      // In production with auth, you might want: request.auth != null
+      allow read: if true;
+      
+      // Allow creation of new jobs
+      // Validates structure and required fields
+      allow create: if isValidJobData(request.resource.data) &&
+                       request.resource.data.status == 'pending' &&
+                       request.resource.data.id == jobId;
+      
+      // Allow updates to existing jobs
+      // Only allows updating specific fields, not creating new jobs
+      // Prevents deletion of required fields
+      allow update: if isValidUpdate(request.resource.data) &&
+                       isValidJobStatus(request.resource.data.status) &&
+                       request.resource.data.updatedAt is timestamp;
+      
+      // Explicitly deny deletion
+      // Jobs should remain for audit/history purposes
+      allow delete: if false;
+    }
+    
+    // Deny access to all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

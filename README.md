@@ -41,14 +41,16 @@ FluxImage is a production-ready image processing platform that demonstrates mode
     /types        - Shared type definitions
     /utils        - Pure utility functions
   /docs
-    architecture.md      - System architecture
-    backend-api.md       - API documentation
-    worker.md            - Worker documentation
-    frontend.md          - Frontend documentation
-    firebase-setup.md    - Firebase configuration
-    redis-setup.md       - Redis setup guide
-    deployment.md        - Deployment guide
-    final-report.md      - Engineering report
+    architecture.md         - System architecture
+    backend-api.md          - API documentation
+    worker.md               - Worker documentation
+    frontend.md             - Frontend documentation
+    firebase-setup.md       - Firebase configuration
+    firestore-security-rules.md - Security rules deployment
+    redis-setup.md          - Redis setup guide
+    security.md             - Security best practices
+    deployment.md           - Deployment guide
+    final-report.md         - Engineering report
 ```
 
 ## Features
@@ -120,8 +122,9 @@ cp apps/web/.env.example apps/web/.env
 ### Configuration
 
 1. **Firebase Setup** - See [firebase-setup.md](docs/firebase-setup.md)
-2. **Redis Setup** - See [redis-setup.md](docs/redis-setup.md)
-3. Fill in environment variables in `.env` files
+2. **Deploy Security Rules** - See [firestore-security-rules.md](docs/firestore-security-rules.md)
+3. **Redis Setup** - See [redis-setup.md](docs/redis-setup.md)
+4. Fill in environment variables in `.env` files
 
 ### Development
 
@@ -187,6 +190,8 @@ Comprehensive guides available in `/docs`:
 - **[Worker](docs/worker.md)** - Worker service guide
 - **[Frontend](docs/frontend.md)** - Web app documentation
 - **[Firebase Setup](docs/firebase-setup.md)** - Firebase configuration
+- **[Security Rules](docs/firestore-security-rules.md)** - Firestore/Storage security
+- **[Security Best Practices](docs/security.md)** - Security guidelines
 - **[Redis Setup](docs/redis-setup.md)** - Redis configuration
 - **[Deployment](docs/deployment.md)** - Production deployment
 - **[Final Report](docs/final-report.md)** - Engineering decisions

@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Processed images folder
+    match /processed/{jobId} {
+      // Anyone can read processed images (public URLs for download)
+      // In production with auth, you might want: request.auth != null
+      allow read: if true;
+      
+      // Only allow writes from backend (Firebase Admin SDK)
+      // Backend has elevated permissions that bypass these rules
+      // This blocks direct client uploads
+      allow write: if false;
+    }
+    
+    // Deny all access to root and other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
