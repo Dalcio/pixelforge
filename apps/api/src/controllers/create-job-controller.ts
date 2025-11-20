@@ -14,8 +14,9 @@ export const createJobController = async (
     // Check Redis health first
     const redisHealthy = await isRedisHealthy();
     if (!redisHealthy) {
-      res.status(503).json({ 
-        error: "Service temporarily unavailable. Queue system is not connected." 
+      res.status(503).json({
+        error:
+          "Service temporarily unavailable. Queue system is not connected.",
       });
       return;
     }
