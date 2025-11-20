@@ -21,10 +21,9 @@ export const createJobController = async (
       return;
     }
 
-    const { inputUrl } = validateCreateJob(req.body);
-    const { transformations } = req.body;
+    const validatedInput = validateCreateJob(req.body);
 
-    const reachabilityResult = await checkUrlReachability(inputUrl);
+    const reachabilityResult = await checkUrlReachability(validatedInput.inputUrl);
     if (!reachabilityResult.reachable) {
       res.status(400).json({ 
         error: `URL is not reachable: ${reachabilityResult.reason}` 
@@ -32,7 +31,7 @@ export const createJobController = async (
       return;
     }
 
-    const jobId = await createJob(inputUrl, transformations);
+    const jobId = await createJob(validatedInput.inputUrl, validatedInput.transformations);
 
     res.status(201).json({
       id: jobId,

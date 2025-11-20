@@ -12,6 +12,7 @@ describe("validateCreateJob", () => {
 
     expect(result).toEqual({
       inputUrl: "https://example.com/image.jpg",
+      transformations: undefined,
     });
   });
 
