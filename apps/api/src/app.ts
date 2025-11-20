@@ -2,7 +2,6 @@ import express, { Express } from "express";
 import cors from "cors";
 import { createJobRoutes } from "./routes/job-routes";
 import { errorHandler } from "./middlewares/error-handler";
-import { isRedisHealthy } from "./lib/redis-client";
 
 export const createApp = (): Express => {
   const app = express();
@@ -11,18 +10,12 @@ export const createApp = (): Express => {
   app.use(express.json({ limit: "1mb" }));
 
   // Health check endpoint
-  app.get("/health", async (_req, res) => {
-    const redisHealthy = await isRedisHealthy();
-
-    const health = {
-      status: redisHealthy ? "healthy" : "degraded",
-      timestamp: new Date().toISOString(),
+  app.get("/health", (_req, res) => {
+    res.status(200).json({
+      status: "ok",
       uptime: process.uptime(),
-      redis: redisHealthy ? "connected" : "disconnected",
-    };
-
-    const statusCode = redisHealthy ? 200 : 503;
-    res.status(statusCode).json(health);
+      timestamp: new Date().toISOString(),
+    });
   });
 
   app.use("/api", createJobRoutes());
