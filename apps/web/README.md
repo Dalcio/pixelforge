@@ -157,9 +157,35 @@ pnpm preview
 
 ### Environment Variables
 
+Create a `.env` file in `apps/web/` directory:
+
 ```env
+# API Configuration
 VITE_API_BASE=http://localhost:3000
+
+# Firebase Configuration
+# Get these values from Firebase Console > Project Settings > General
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-bucket.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
 ```
+
+**Note**: Copy `.env.example` to `.env` and fill in your Firebase credentials.
+
+### Firebase Setup
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project or select existing one
+3. Navigate to **Project Settings** > **General**
+4. Scroll to **Your apps** section
+5. Click **Web app** icon to create/view web app configuration
+6. Copy the configuration values to your `.env` file
+
+**Security Note**: Never commit your `.env` file to version control. It's already listed in `.gitignore`.
 
 ### Tailwind Configuration
 

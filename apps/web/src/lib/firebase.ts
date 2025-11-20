@@ -2,24 +2,37 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCd-_f5FOLvd8EcEolY2kxrQhwb-MlP9YE",
-  authDomain: "image-transformation-64f36.firebaseapp.com",
-  projectId: "image-transformation-64f36",
-  storageBucket: "image-transformation-64f36.firebasestorage.app",
-  messagingSenderId: "493643052188",
-  appId: "1:493643052188:web:fa88943256e91c8053a959",
-  measurementId: "G-6QDXTQN7LK",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 let appInitialized = false;
 
 export function initFirebase() {
-  if (!appInitialized && firebaseConfig.apiKey) {
+  // Validate required Firebase configuration
+  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+    console.warn(
+      "Firebase configuration is incomplete. Please check your environment variables."
+    );
+    return;
+  }
+
+  if (!appInitialized) {
     try {
       const app = initializeApp(firebaseConfig);
-      getAnalytics(app);
+
+      // Only initialize analytics if measurementId is provided
+      if (firebaseConfig.measurementId) {
+        getAnalytics(app);
+      }
+
       appInitialized = true;
-      console.log("Firebase initialized");
+      console.log("Firebase initialized successfully");
     } catch (error) {
       console.error("Failed to initialize Firebase:", error);
     }

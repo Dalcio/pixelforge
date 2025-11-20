@@ -162,9 +162,9 @@ describe("downloadImage", () => {
       new Error("maxContentLength size of 10485760 exceeded")
     );
 
-    await expect(
-      downloadImage("https://example.com/huge.jpg")
-    ).rejects.toThrow("maxContentLength");
+    await expect(downloadImage("https://example.com/huge.jpg")).rejects.toThrow(
+      "maxContentLength"
+    );
   });
 
   it("should handle large image downloads under 10MB", async () => {

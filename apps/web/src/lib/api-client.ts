@@ -24,20 +24,20 @@ async function handleResponse<T>(res: Response): Promise<T> {
     // Provide user-friendly messages for specific HTTP status codes
     if (res.status === 503) {
       throw new Error(
-        errorMessage.includes('Queue system')
-          ? '⚠️ Service temporarily unavailable. Please try again in a moment.'
-          : '⚠️ Service temporarily unavailable. Please try again later.'
+        errorMessage.includes("Queue system")
+          ? "⚠️ Service temporarily unavailable. Please try again in a moment."
+          : "⚠️ Service temporarily unavailable. Please try again later."
       );
     } else if (res.status === 400) {
       // Keep validation error messages as-is from backend
       throw new Error(errorMessage);
     } else if (res.status === 404) {
-      throw new Error('🔍 Resource not found.');
+      throw new Error("🔍 Resource not found.");
     } else if (res.status === 429) {
-      throw new Error('⏱️ Too many requests. Please slow down.');
+      throw new Error("⏱️ Too many requests. Please slow down.");
     } else if (res.status >= 500) {
       throw new Error(
-        '❌ Server error occurred. Please try again or contact support if the issue persists.'
+        "❌ Server error occurred. Please try again or contact support if the issue persists."
       );
     }
 
@@ -56,9 +56,12 @@ export async function createJob(input: CreateJobInput): Promise<JobResponse> {
     return handleResponse<JobResponse>(res);
   } catch (error: any) {
     // Handle network errors (connection refused, timeout, etc.)
-    if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+    if (
+      error.message.includes("Failed to fetch") ||
+      error.name === "TypeError"
+    ) {
       throw new Error(
-        '🌐 Cannot connect to server. Please check your internet connection.'
+        "🌐 Cannot connect to server. Please check your internet connection."
       );
     }
     throw error;
