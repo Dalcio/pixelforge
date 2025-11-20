@@ -30,7 +30,7 @@ describe("checkUrlReachability", () => {
     const mockHttpRequest = vi.fn((_url, _options, callback) => {
       // Simulate successful response
       setTimeout(() => {
-        callback({ statusCode: 200 });
+        callback({ statusCode: 200, headers: {} });
       }, 0);
       return mockRequest;
     });
@@ -38,7 +38,7 @@ describe("checkUrlReachability", () => {
     vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
 
     const result = await checkUrlReachability("http://example.com/image.jpg");
-    expect(result).toBe(true);
+    expect(result.reachable).toBe(true);
     expect(http.request).toHaveBeenCalledWith(
       "http://example.com/image.jpg",
       { method: "HEAD", timeout: 5000 },
@@ -49,7 +49,7 @@ describe("checkUrlReachability", () => {
   it("should return true for reachable HTTPS URL with 200 status", async () => {
     const mockHttpsRequest = vi.fn((_url, _options, callback) => {
       setTimeout(() => {
-        callback({ statusCode: 200 });
+        callback({ statusCode: 200, headers: {} });
       }, 0);
       return mockRequest;
     });
@@ -57,14 +57,14 @@ describe("checkUrlReachability", () => {
     vi.mocked(https.request).mockImplementation(mockHttpsRequest as any);
 
     const result = await checkUrlReachability("https://example.com/image.jpg");
-    expect(result).toBe(true);
+    expect(result.reachable).toBe(true);
     expect(https.request).toHaveBeenCalled();
   });
 
   it("should return true for 3xx redirect status codes", async () => {
     const mockHttpRequest = vi.fn((_url, _options, callback) => {
       setTimeout(() => {
-        callback({ statusCode: 301 });
+        callback({ statusCode: 301, headers: {} });
       }, 0);
       return mockRequest;
     });
@@ -72,13 +72,13 @@ describe("checkUrlReachability", () => {
     vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
 
     const result = await checkUrlReachability("http://example.com/image.jpg");
-    expect(result).toBe(true);
+    expect(result.reachable).toBe(true);
   });
 
   it("should return false for 404 status code", async () => {
     const mockHttpRequest = vi.fn((_url, _options, callback) => {
       setTimeout(() => {
-        callback({ statusCode: 404 });
+        callback({ statusCode: 404, headers: {} });
       }, 0);
       return mockRequest;
     });
@@ -88,13 +88,14 @@ describe("checkUrlReachability", () => {
     const result = await checkUrlReachability(
       "http://example.com/not-found.jpg"
     );
-    expect(result).toBe(false);
+    expect(result.reachable).toBe(false);
+    expect(result.reason).toContain("404");
   });
 
   it("should return false for 500 server error", async () => {
     const mockHttpRequest = vi.fn((_url, _options, callback) => {
       setTimeout(() => {
-        callback({ statusCode: 500 });
+        callback({ statusCode: 500, headers: {} });
       }, 0);
       return mockRequest;
     });
@@ -102,7 +103,8 @@ describe("checkUrlReachability", () => {
     vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
 
     const result = await checkUrlReachability("http://example.com/error.jpg");
-    expect(result).toBe(false);
+    expect(result.reachable).toBe(false);
+    expect(result.reason).toContain("500");
   });
 
   it("should return false on network error", async () => {
@@ -122,7 +124,8 @@ describe("checkUrlReachability", () => {
     vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
 
     const result = await checkUrlReachability("http://unreachable.example.com");
-    expect(result).toBe(false);
+    expect(result.reachable).toBe(false);
+    expect(result.reason).toBeDefined();
   });
 
   it("should return false on timeout", async () => {
@@ -144,14 +147,15 @@ describe("checkUrlReachability", () => {
     const result = await checkUrlReachability(
       "http://slow.example.com/image.jpg"
     );
-    expect(result).toBe(false);
+    expect(result.reachable).toBe(false);
+    expect(result.reason).toContain("timed out");
     expect(mockRequest.destroy).toHaveBeenCalled();
   });
 
   it("should handle undefined status code", async () => {
     const mockHttpRequest = vi.fn((_url, _options, callback) => {
       setTimeout(() => {
-        callback({ statusCode: undefined });
+        callback({ statusCode: undefined, headers: {} });
       }, 0);
       return mockRequest;
     });
@@ -159,6 +163,7 @@ describe("checkUrlReachability", () => {
     vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
 
     const result = await checkUrlReachability("http://example.com/image.jpg");
-    expect(result).toBe(false);
+    expect(result.reachable).toBe(false);
+    expect(result.reason).toBeDefined();
   });
 });
