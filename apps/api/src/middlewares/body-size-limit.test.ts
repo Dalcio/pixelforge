@@ -10,11 +10,11 @@ describe("Body Size Limit", () => {
 
   beforeAll(async () => {
     app = createApp();
-    
+
     return new Promise<void>((resolve) => {
       server = app.listen(0, () => {
         const address = server.address();
-        if (address && typeof address !== 'string') {
+        if (address && typeof address !== "string") {
           baseUrl = `http://localhost:${address.port}`;
         }
         resolve();
@@ -83,8 +83,8 @@ describe("Body Size Limit", () => {
     });
 
     expect(response.status).toBe(413);
-    
-    const data = await response.json() as { error: string };
+
+    const data = (await response.json()) as { error: string };
     expect(data.error).toBe("Request body too large");
   });
 });

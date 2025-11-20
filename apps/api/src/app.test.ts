@@ -16,11 +16,11 @@ describe("Health Endpoint", () => {
 
   beforeAll(async () => {
     app = createApp();
-    
+
     return new Promise<void>((resolve) => {
       server = app.listen(0, () => {
         const address = server.address();
-        if (address && typeof address !== 'string') {
+        if (address && typeof address !== "string") {
           baseUrl = `http://localhost:${address.port}`;
         }
         resolve();
@@ -44,7 +44,7 @@ describe("Health Endpoint", () => {
 
   it("should return correct response structure", async () => {
     const response = await fetch(`${baseUrl}/health`);
-    const data = await response.json() as HealthResponse;
+    const data = (await response.json()) as HealthResponse;
 
     expect(data).toHaveProperty("status");
     expect(data).toHaveProperty("uptime");
@@ -53,14 +53,14 @@ describe("Health Endpoint", () => {
 
   it("should return status as 'ok'", async () => {
     const response = await fetch(`${baseUrl}/health`);
-    const data = await response.json() as HealthResponse;
+    const data = (await response.json()) as HealthResponse;
 
     expect(data.status).toBe("ok");
   });
 
   it("should return uptime as a number", async () => {
     const response = await fetch(`${baseUrl}/health`);
-    const data = await response.json() as HealthResponse;
+    const data = (await response.json()) as HealthResponse;
 
     expect(typeof data.uptime).toBe("number");
     expect(data.uptime).toBeGreaterThanOrEqual(0);
@@ -68,7 +68,7 @@ describe("Health Endpoint", () => {
 
   it("should return timestamp in ISO format", async () => {
     const response = await fetch(`${baseUrl}/health`);
-    const data = await response.json() as HealthResponse;
+    const data = (await response.json()) as HealthResponse;
 
     expect(data.timestamp).toBeDefined();
     const timestamp = new Date(data.timestamp);
@@ -89,7 +89,7 @@ describe("Health Endpoint", () => {
 
     for (const response of responses) {
       expect(response.status).toBe(200);
-      const data = await response.json() as HealthResponse;
+      const data = (await response.json()) as HealthResponse;
       expect(data.status).toBe("ok");
     }
   });

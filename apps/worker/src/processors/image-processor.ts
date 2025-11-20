@@ -30,7 +30,7 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
       if (error instanceof DownloadError) {
         const jobError: JobError = {
           message: error.message,
-          step: 'download',
+          step: "download",
           url: inputUrl,
           jobId,
           timestamp,
@@ -46,8 +46,8 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
       isValid = await validateImage(imageBuffer);
     } catch (error) {
       const jobError: JobError = {
-        message: error instanceof Error ? error.message : 'Validation failed',
-        step: 'validate',
+        message: error instanceof Error ? error.message : "Validation failed",
+        step: "validate",
         url: inputUrl,
         jobId,
         timestamp,
@@ -58,8 +58,8 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
 
     if (!isValid) {
       const jobError: JobError = {
-        message: 'Invalid image format or corrupted image data',
-        step: 'validate',
+        message: "Invalid image format or corrupted image data",
+        step: "validate",
         url: inputUrl,
         jobId,
         timestamp,
@@ -91,8 +91,8 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
       outputUrl = await uploadImage(jobId, processedBuffer);
     } catch (error) {
       const jobError: JobError = {
-        message: error instanceof Error ? error.message : 'Upload failed',
-        step: 'upload',
+        message: error instanceof Error ? error.message : "Upload failed",
+        step: "upload",
         url: inputUrl,
         jobId,
         timestamp,
@@ -105,7 +105,7 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
-    
+
     // If it's already a formatted error, re-throw
     try {
       JSON.parse(errorMessage);
@@ -114,7 +114,7 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
       // Not JSON, create a generic error
       const jobError: JobError = {
         message: errorMessage,
-        step: 'unknown',
+        step: "unknown",
         url: inputUrl,
         jobId,
         timestamp,

@@ -3,9 +3,13 @@ import axios, { AxiosError } from "axios";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
 export class DownloadError extends Error {
-  constructor(message: string, public readonly url: string, public readonly cause?: Error) {
+  constructor(
+    message: string,
+    public readonly url: string,
+    public readonly cause?: Error
+  ) {
     super(message);
-    this.name = 'DownloadError';
+    this.name = "DownloadError";
   }
 }
 
@@ -22,7 +26,11 @@ export const downloadImage = async (url: string): Promise<Buffer> => {
         const fileSize = parseInt(contentLength, 10);
         if (fileSize > MAX_FILE_SIZE) {
           throw new DownloadError(
-            `File size (${(fileSize / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+            `File size (${(fileSize / 1024 / 1024).toFixed(
+              2
+            )}MB) exceeds maximum allowed size of ${
+              MAX_FILE_SIZE / 1024 / 1024
+            }MB`,
             url
           );
         }
@@ -58,20 +66,27 @@ export const downloadImage = async (url: string): Promise<Buffer> => {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError;
 
-      if (axiosError.code === 'ENOTFOUND') {
-        throw new DownloadError('Domain not found or DNS lookup failed', url, error);
+      if (axiosError.code === "ENOTFOUND") {
+        throw new DownloadError(
+          "Domain not found or DNS lookup failed",
+          url,
+          error
+        );
       }
 
-      if (axiosError.code === 'ETIMEDOUT' || axiosError.code === 'ECONNABORTED') {
-        throw new DownloadError('Connection timed out', url, error);
+      if (
+        axiosError.code === "ETIMEDOUT" ||
+        axiosError.code === "ECONNABORTED"
+      ) {
+        throw new DownloadError("Connection timed out", url, error);
       }
 
-      if (axiosError.code === 'ECONNREFUSED') {
-        throw new DownloadError('Connection refused by server', url, error);
+      if (axiosError.code === "ECONNREFUSED") {
+        throw new DownloadError("Connection refused by server", url, error);
       }
 
       if (axiosError.response?.status === 404) {
-        throw new DownloadError('Image not found (HTTP 404)', url, error);
+        throw new DownloadError("Image not found (HTTP 404)", url, error);
       }
 
       if (axiosError.response?.status) {
@@ -90,7 +105,9 @@ export const downloadImage = async (url: string): Promise<Buffer> => {
     }
 
     throw new DownloadError(
-      `Failed to download image: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      `Failed to download image: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`,
       url,
       error instanceof Error ? error : undefined
     );

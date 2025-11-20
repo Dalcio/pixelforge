@@ -1,5 +1,12 @@
-import { getFirestore, collection, onSnapshot, query, orderBy, Unsubscribe } from 'firebase/firestore';
-import type { JobResponse } from '@fluximage/types';
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  Unsubscribe,
+} from "firebase/firestore";
+import type { JobResponse } from "@fluximage/types";
 
 export interface FirestoreJob {
   id: string;
@@ -13,8 +20,10 @@ export interface FirestoreJob {
   processedAt?: { seconds: number; nanoseconds: number } | string;
 }
 
-function convertTimestamp(timestamp: { seconds: number; nanoseconds: number } | string): string {
-  if (typeof timestamp === 'string') {
+function convertTimestamp(
+  timestamp: { seconds: number; nanoseconds: number } | string
+): string {
+  if (typeof timestamp === "string") {
     return timestamp;
   }
   return new Date(timestamp.seconds * 1000).toISOString();
@@ -23,14 +32,16 @@ function convertTimestamp(timestamp: { seconds: number; nanoseconds: number } | 
 function mapFirestoreJobToResponse(doc: FirestoreJob): JobResponse {
   return {
     id: doc.id,
-    status: doc.status as JobResponse['status'],
+    status: doc.status as JobResponse["status"],
     inputUrl: doc.inputUrl,
     outputUrl: doc.outputUrl,
     error: doc.error,
     transformations: doc.transformations,
     createdAt: convertTimestamp(doc.createdAt),
     updatedAt: convertTimestamp(doc.updatedAt),
-    processedAt: doc.processedAt ? convertTimestamp(doc.processedAt) : undefined,
+    processedAt: doc.processedAt
+      ? convertTimestamp(doc.processedAt)
+      : undefined,
   };
 }
 
@@ -40,15 +51,15 @@ export function subscribeToJobs(
 ): Unsubscribe {
   try {
     const db = getFirestore();
-    const jobsRef = collection(db, 'jobs');
-    const q = query(jobsRef, orderBy('createdAt', 'desc'));
+    const jobsRef = collection(db, "jobs");
+    const q = query(jobsRef, orderBy("createdAt", "desc"));
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
         const jobs: JobResponse[] = [];
         snapshot.forEach((doc) => {
-          const data = doc.data() as Omit<FirestoreJob, 'id'>;
+          const data = doc.data() as Omit<FirestoreJob, "id">;
           jobs.push(mapFirestoreJobToResponse({ id: doc.id, ...data }));
         });
         onUpdate(jobs);
@@ -60,7 +71,9 @@ export function subscribeToJobs(
 
     return unsubscribe;
   } catch (error) {
-    onError(error instanceof Error ? error : new Error('Failed to subscribe to jobs'));
+    onError(
+      error instanceof Error ? error : new Error("Failed to subscribe to jobs")
+    );
     return () => {};
   }
 }

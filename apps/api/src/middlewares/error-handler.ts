@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 
 interface ExpressError extends Error {
   status?: number;
@@ -12,17 +12,21 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ): void => {
-  console.error('Error:', err);
+  console.error("Error:", err);
 
   // Handle body-parser/express.json payload too large error
-  if (err.type === 'entity.too.large' || err.status === 413 || err.statusCode === 413) {
+  if (
+    err.type === "entity.too.large" ||
+    err.status === 413 ||
+    err.statusCode === 413
+  ) {
     res.status(413).json({
-      error: 'Request body too large',
+      error: "Request body too large",
     });
     return;
   }
 
   res.status(500).json({
-    error: err.message || 'Internal server error',
+    error: err.message || "Internal server error",
   });
 };

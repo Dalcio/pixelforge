@@ -58,7 +58,7 @@ process.on("SIGTERM", async () => {
       await disconnectRedis();
       process.exit(1);
     }
-    
+
     console.log("✓ Server closed successfully");
     await disconnectRedis();
     console.log("✓ Redis connection closed");
@@ -82,7 +82,7 @@ process.on("SIGINT", async () => {
       await disconnectRedis();
       process.exit(1);
     }
-    
+
     console.log("✓ Server closed successfully");
     await disconnectRedis();
     console.log("✓ Redis connection closed");

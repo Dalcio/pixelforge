@@ -1,5 +1,5 @@
-import { createJobSchema } from './job-schema';
-import type { TransformationOptions } from '@fluximage/types';
+import { createJobSchema } from "./job-schema";
+import type { TransformationOptions } from "@fluximage/types";
 
 export interface ValidatedCreateJobInput {
   inputUrl: string;

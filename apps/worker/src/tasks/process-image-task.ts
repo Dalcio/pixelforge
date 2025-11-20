@@ -2,9 +2,13 @@ import sharp from "sharp";
 import type { TransformationOptions } from "@fluximage/types";
 
 export class ProcessingError extends Error {
-  constructor(message: string, public readonly step: string, public readonly cause?: Error) {
+  constructor(
+    message: string,
+    public readonly step: string,
+    public readonly cause?: Error
+  ) {
     super(message);
-    this.name = 'ProcessingError';
+    this.name = "ProcessingError";
   }
 }
 
@@ -23,8 +27,10 @@ export const processImage = async (
         pipeline = pipeline.rotate(options.rotate);
       } catch (error) {
         throw new ProcessingError(
-          `Failed to rotate image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          'rotate',
+          `Failed to rotate image: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          "rotate",
           error instanceof Error ? error : undefined
         );
       }
@@ -36,8 +42,10 @@ export const processImage = async (
         pipeline = pipeline.flip();
       } catch (error) {
         throw new ProcessingError(
-          `Failed to flip image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          'flip',
+          `Failed to flip image: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          "flip",
           error instanceof Error ? error : undefined
         );
       }
@@ -47,8 +55,10 @@ export const processImage = async (
         pipeline = pipeline.flop();
       } catch (error) {
         throw new ProcessingError(
-          `Failed to flop image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          'flop',
+          `Failed to flop image: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          "flop",
           error instanceof Error ? error : undefined
         );
       }
@@ -70,8 +80,10 @@ export const processImage = async (
       }
     } catch (error) {
       throw new ProcessingError(
-        `Failed to resize image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        'resize',
+        `Failed to resize image: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        "resize",
         error instanceof Error ? error : undefined
       );
     }
@@ -82,8 +94,10 @@ export const processImage = async (
         pipeline = pipeline.grayscale();
       } catch (error) {
         throw new ProcessingError(
-          `Failed to apply grayscale: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          'grayscale',
+          `Failed to apply grayscale: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          "grayscale",
           error instanceof Error ? error : undefined
         );
       }
@@ -95,8 +109,10 @@ export const processImage = async (
         pipeline = pipeline.blur(options.blur);
       } catch (error) {
         throw new ProcessingError(
-          `Failed to apply blur: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          'blur',
+          `Failed to apply blur: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          "blur",
           error instanceof Error ? error : undefined
         );
       }
@@ -108,8 +124,10 @@ export const processImage = async (
         pipeline = pipeline.sharpen();
       } catch (error) {
         throw new ProcessingError(
-          `Failed to sharpen image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          'sharpen',
+          `Failed to sharpen image: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          "sharpen",
           error instanceof Error ? error : undefined
         );
       }
@@ -125,8 +143,10 @@ export const processImage = async (
         .toBuffer();
     } catch (error) {
       throw new ProcessingError(
-        `Failed to convert to JPEG: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        'jpeg-conversion',
+        `Failed to convert to JPEG: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        "jpeg-conversion",
         error instanceof Error ? error : undefined
       );
     }
@@ -136,8 +156,10 @@ export const processImage = async (
     }
 
     throw new ProcessingError(
-      `Image processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      'unknown',
+      `Image processing failed: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`,
+      "unknown",
       error instanceof Error ? error : undefined
     );
   }
