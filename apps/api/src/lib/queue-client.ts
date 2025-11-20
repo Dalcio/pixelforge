@@ -14,5 +14,10 @@ export const getQueue = (): Queue => {
     connection,
   });
 
+  // Queue event handlers
+  queue.on('error', (err: Error) => {
+    console.error('[API Queue] Error:', err.message);
+  });
+
   return queue;
 };

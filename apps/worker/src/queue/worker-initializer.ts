@@ -11,11 +11,19 @@ export const createWorker = (): Worker => {
   });
 
   worker.on('completed', (job) => {
-    console.log(`Job ${job.id} completed successfully`);
+    console.log(`[Worker] ✓ Job ${job.id} completed successfully`);
   });
 
   worker.on('failed', (job, err) => {
-    console.error(`Job ${job?.id} failed:`, err.message);
+    console.error(`[Worker] ✗ Job ${job?.id} failed:`, err.message);
+  });
+
+  worker.on('error', (err) => {
+    console.error('[Worker] Worker error:', err.message);
+  });
+
+  worker.on('active', (job) => {
+    console.log(`[Worker] → Processing job ${job.id}...`);
   });
 
   return worker;

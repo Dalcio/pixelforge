@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { processImage } from './process-image-task';
-import sharp from 'sharp';
-import type { TransformationOptions } from '@fluximage/types';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { processImage } from "./process-image-task";
+import sharp from "sharp";
+import type { TransformationOptions } from "@fluximage/types";
 
 // Mock sharp
-vi.mock('sharp');
+vi.mock("sharp");
 
-describe('processImage', () => {
+describe("processImage", () => {
   let mockPipeline: any;
 
   beforeEach(() => {
@@ -22,19 +22,19 @@ describe('processImage', () => {
       blur: vi.fn().mockReturnThis(),
       sharpen: vi.fn().mockReturnThis(),
       jpeg: vi.fn().mockReturnThis(),
-      toBuffer: vi.fn().mockResolvedValue(Buffer.from('processed-image')),
+      toBuffer: vi.fn().mockResolvedValue(Buffer.from("processed-image")),
     };
 
     vi.mocked(sharp).mockReturnValue(mockPipeline);
   });
 
-  it('should process image with default settings when no transformations provided', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should process image with default settings when no transformations provided", async () => {
+    const buffer = Buffer.from("original-image");
     const result = await processImage(buffer);
 
     expect(sharp).toHaveBeenCalledWith(buffer);
     expect(mockPipeline.resize).toHaveBeenCalledWith(800, 800, {
-      fit: 'inside',
+      fit: "inside",
       withoutEnlargement: true,
     });
     expect(mockPipeline.jpeg).toHaveBeenCalledWith({
@@ -44,8 +44,8 @@ describe('processImage', () => {
     expect(result).toBeInstanceOf(Buffer);
   });
 
-  it('should apply width and height transformations', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply width and height transformations", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       width: 1920,
       height: 1080,
@@ -54,13 +54,13 @@ describe('processImage', () => {
     await processImage(buffer, transformations);
 
     expect(mockPipeline.resize).toHaveBeenCalledWith(1920, 1080, {
-      fit: 'inside',
+      fit: "inside",
       withoutEnlargement: true,
     });
   });
 
-  it('should apply rotation transformation', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply rotation transformation", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       rotate: 90,
     };
@@ -70,14 +70,16 @@ describe('processImage', () => {
     expect(mockPipeline.rotate).toHaveBeenCalledWith(90);
   });
 
-  it('should apply all rotation values', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply all rotation values", async () => {
+    const buffer = Buffer.from("original-image");
     const rotations = [0, 90, 180, 270];
 
     for (const rotate of rotations) {
       vi.clearAllMocks();
       mockPipeline.rotate = vi.fn().mockReturnThis();
-      mockPipeline.toBuffer = vi.fn().mockResolvedValue(Buffer.from('processed'));
+      mockPipeline.toBuffer = vi
+        .fn()
+        .mockResolvedValue(Buffer.from("processed"));
       vi.mocked(sharp).mockReturnValue(mockPipeline);
 
       await processImage(buffer, { rotate });
@@ -88,8 +90,8 @@ describe('processImage', () => {
     }
   });
 
-  it('should apply flip transformation', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply flip transformation", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       flip: true,
     };
@@ -99,8 +101,8 @@ describe('processImage', () => {
     expect(mockPipeline.flip).toHaveBeenCalled();
   });
 
-  it('should apply flop transformation', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply flop transformation", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       flop: true,
     };
@@ -110,8 +112,8 @@ describe('processImage', () => {
     expect(mockPipeline.flop).toHaveBeenCalled();
   });
 
-  it('should not apply flip when false', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should not apply flip when false", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       flip: false,
     };
@@ -121,8 +123,8 @@ describe('processImage', () => {
     expect(mockPipeline.flip).not.toHaveBeenCalled();
   });
 
-  it('should apply grayscale transformation', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply grayscale transformation", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       grayscale: true,
     };
@@ -132,8 +134,8 @@ describe('processImage', () => {
     expect(mockPipeline.grayscale).toHaveBeenCalled();
   });
 
-  it('should apply blur transformation', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply blur transformation", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       blur: 5,
     };
@@ -143,8 +145,8 @@ describe('processImage', () => {
     expect(mockPipeline.blur).toHaveBeenCalledWith(5);
   });
 
-  it('should not apply blur when value is 0', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should not apply blur when value is 0", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       blur: 0,
     };
@@ -154,8 +156,8 @@ describe('processImage', () => {
     expect(mockPipeline.blur).not.toHaveBeenCalled();
   });
 
-  it('should apply sharpen transformation', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply sharpen transformation", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       sharpen: true,
     };
@@ -165,8 +167,8 @@ describe('processImage', () => {
     expect(mockPipeline.sharpen).toHaveBeenCalled();
   });
 
-  it('should apply custom quality', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply custom quality", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       quality: 95,
     };
@@ -179,8 +181,8 @@ describe('processImage', () => {
     });
   });
 
-  it('should apply multiple transformations together', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should apply multiple transformations together", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       width: 1920,
       height: 1080,
@@ -197,7 +199,7 @@ describe('processImage', () => {
     expect(mockPipeline.rotate).toHaveBeenCalledWith(90);
     expect(mockPipeline.flip).toHaveBeenCalled();
     expect(mockPipeline.resize).toHaveBeenCalledWith(1920, 1080, {
-      fit: 'inside',
+      fit: "inside",
       withoutEnlargement: true,
     });
     expect(mockPipeline.grayscale).toHaveBeenCalled();
@@ -209,8 +211,8 @@ describe('processImage', () => {
     });
   });
 
-  it('should use width only for resize', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should use width only for resize", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       width: 1000,
     };
@@ -218,13 +220,13 @@ describe('processImage', () => {
     await processImage(buffer, transformations);
 
     expect(mockPipeline.resize).toHaveBeenCalledWith(1000, undefined, {
-      fit: 'inside',
+      fit: "inside",
       withoutEnlargement: true,
     });
   });
 
-  it('should use height only for resize', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should use height only for resize", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       height: 720,
     };
@@ -232,13 +234,13 @@ describe('processImage', () => {
     await processImage(buffer, transformations);
 
     expect(mockPipeline.resize).toHaveBeenCalledWith(undefined, 720, {
-      fit: 'inside',
+      fit: "inside",
       withoutEnlargement: true,
     });
   });
 
-  it('should always output JPEG format', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should always output JPEG format", async () => {
+    const buffer = Buffer.from("original-image");
 
     await processImage(buffer, {});
 
@@ -246,8 +248,8 @@ describe('processImage', () => {
     expect(mockPipeline.toBuffer).toHaveBeenCalled();
   });
 
-  it('should use progressive JPEG encoding', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should use progressive JPEG encoding", async () => {
+    const buffer = Buffer.from("original-image");
 
     await processImage(buffer, {});
 
@@ -258,21 +260,21 @@ describe('processImage', () => {
     );
   });
 
-  it('should handle empty transformations object', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should handle empty transformations object", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {};
 
     const result = await processImage(buffer, transformations);
 
     expect(result).toBeInstanceOf(Buffer);
     expect(mockPipeline.resize).toHaveBeenCalledWith(800, 800, {
-      fit: 'inside',
+      fit: "inside",
       withoutEnlargement: true,
     });
   });
 
-  it('should use fit inside and withoutEnlargement for resize', async () => {
-    const buffer = Buffer.from('original-image');
+  it("should use fit inside and withoutEnlargement for resize", async () => {
+    const buffer = Buffer.from("original-image");
     const transformations: TransformationOptions = {
       width: 500,
       height: 500,
@@ -284,7 +286,7 @@ describe('processImage', () => {
       500,
       500,
       expect.objectContaining({
-        fit: 'inside',
+        fit: "inside",
         withoutEnlargement: true,
       })
     );

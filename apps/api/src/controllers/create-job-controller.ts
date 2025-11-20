@@ -3,6 +3,7 @@ import { validateCreateJob } from "../validators/job-validator";
 import { checkUrlReachability } from "../validators/url-reachability-checker";
 import { createJob } from "../services/job-service";
 import { JobStatus } from "@fluximage/types";
+import { isRedisHealthy } from "../lib/redis-client";
 
 export const createJobController = async (
   req: Request,
@@ -10,6 +11,15 @@ export const createJobController = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    // Check Redis health first
+    const redisHealthy = await isRedisHealthy();
+    if (!redisHealthy) {
+      res.status(503).json({ 
+        error: "Service temporarily unavailable. Queue system is not connected." 
+      });
+      return;
+    }
+
     const { inputUrl } = validateCreateJob(req.body);
     const { transformations } = req.body;
 
