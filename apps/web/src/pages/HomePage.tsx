@@ -3,7 +3,7 @@ import { JobList } from "../components/JobList";
 import { useJobList } from "../hooks/use-job-list";
 
 export function HomePage() {
-  const { jobs, loading, error, reload } = useJobList(5000);
+  const { jobs, loading, error, reload } = useJobList();
 
   return (
     <main className="min-h-screen mx-auto w-full max-w-3xl px-6 py-8">
