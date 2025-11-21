@@ -10,7 +10,13 @@ const transformationSchema = Joi.object({
   flip: Joi.boolean().optional(),
   flop: Joi.boolean().optional(),
   quality: Joi.number().integer().min(1).max(100).optional(),
-}).optional();
+})
+  .min(1)
+  .optional()
+  .messages({
+    "object.min":
+      "At least one transformation property is required (width, height, grayscale, blur, sharpen, rotate, flip, flop, or quality)",
+  });
 
 export const createJobSchema = Joi.object({
   inputUrl: Joi.string().uri().required(),

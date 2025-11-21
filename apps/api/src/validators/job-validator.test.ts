@@ -107,4 +107,29 @@ describe("validateCreateJob", () => {
   it("should handle null input", () => {
     expect(() => validateCreateJob(null)).toThrow();
   });
+
+  // New requirement: empty transformations should be rejected
+  it("should reject empty transformations object", () => {
+    const emptyTransformations = {
+      inputUrl: "https://example.com/image.jpg",
+      transformations: {},
+    };
+
+    expect(() => validateCreateJob(emptyTransformations)).toThrow(
+      "At least one transformation property is required"
+    );
+  });
+
+  // New requirement: at least one transformation must be provided
+  it("should accept transformations with at least one property", () => {
+    const validTransformations = {
+      inputUrl: "https://example.com/image.jpg",
+      transformations: {
+        grayscale: true,
+      },
+    };
+
+    const result = validateCreateJob(validTransformations);
+    expect(result.transformations).toEqual({ grayscale: true });
+  });
 });

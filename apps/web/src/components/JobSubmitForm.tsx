@@ -9,15 +9,16 @@ interface JobSubmitFormProps {
 export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
   const [url, setUrl] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [width, setWidth] = useState(800);
-  const [height, setHeight] = useState(800);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
   const [grayscale, setGrayscale] = useState(false);
   const [blur, setBlur] = useState(0);
   const [sharpen, setSharpen] = useState(false);
   const [rotate, setRotate] = useState(0);
   const [flip, setFlip] = useState(false);
   const [flop, setFlop] = useState(false);
-  const [quality, setQuality] = useState(85);
+  const [quality, setQuality] = useState(0);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { submit, loading, error, clearError } = useJobSubmission(onSuccess);
   const {
@@ -54,18 +55,30 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
     if (!url.trim()) return;
 
     // Build transformations from form state
-    const transformations: any = {
-      width: width || undefined,
-      height: height || undefined,
-      quality: quality,
-    };
+    const transformations: any = {};
 
+    if (width > 0) transformations.width = width;
+    if (height > 0) transformations.height = height;
+    if (quality > 0) transformations.quality = quality;
     if (grayscale) transformations.grayscale = true;
     if (blur > 0) transformations.blur = blur;
     if (sharpen) transformations.sharpen = true;
     if (rotate !== 0) transformations.rotate = rotate;
     if (flip) transformations.flip = true;
     if (flop) transformations.flop = true;
+
+    // Check if at least one transformation is set
+    const hasTransformations = Object.keys(transformations).length > 0;
+
+    if (!hasTransformations) {
+      setValidationError(
+        "Please select at least one transformation option to process the image."
+      );
+      return;
+    }
+
+    // Clear validation error if set
+    setValidationError(null);
 
     const result = await submit(url.trim(), transformations);
 
@@ -89,6 +102,7 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value);
     if (error) clearError();
+    if (validationError) setValidationError(null);
   };
 
   return (
@@ -237,6 +251,29 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
 
           {/* Transformation Options */}
           <div className="space-y-4 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl">
+            {validationError && (
+              <div
+                className="flex items-start gap-2 p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl"
+                role="alert"
+                aria-live="assertive"
+              >
+                <svg
+                  className="w-5 h-5 text-[hsl(var(--color-error))] flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <p className="text-sm text-[hsl(var(--color-error))]">
+                  {validationError}
+                </p>
+              </div>
+            )}
             <h3 className="text-sm font-bold text-[hsl(var(--color-text))] flex items-center gap-2">
               <svg
                 className="w-4 h-4"
@@ -266,8 +303,12 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
                 <input
                   id="width"
                   type="number"
-                  value={width}
-                  onChange={(e) => setWidth(parseInt(e.target.value) || 0)}
+                  value={width || ""}
+                  onChange={(e) => {
+                    setWidth(parseInt(e.target.value) || 0);
+                    if (validationError) setValidationError(null);
+                  }}
+                  placeholder="Original"
                   className="w-full px-3 py-2 bg-white border-2 border-blue-200 rounded-xl text-sm font-medium focus:border-blue-400 focus:outline-none transition-colors"
                   min="0"
                   max="4000"
@@ -283,8 +324,12 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
                 <input
                   id="height"
                   type="number"
-                  value={height}
-                  onChange={(e) => setHeight(parseInt(e.target.value) || 0)}
+                  value={height || ""}
+                  onChange={(e) => {
+                    setHeight(parseInt(e.target.value) || 0);
+                    if (validationError) setValidationError(null);
+                  }}
+                  placeholder="Original"
                   className="w-full px-3 py-2 bg-white border-2 border-blue-200 rounded-xl text-sm font-medium focus:border-blue-400 focus:outline-none transition-colors"
                   min="0"
                   max="4000"
@@ -298,15 +343,18 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
                 htmlFor="quality"
                 className="block text-xs font-semibold text-[hsl(var(--color-text))] mb-1.5"
               >
-                Quality: {quality}%
+                Quality: {quality > 0 ? `${quality}%` : "Original"}
               </label>
               <input
                 id="quality"
                 type="range"
                 value={quality}
-                onChange={(e) => setQuality(parseInt(e.target.value))}
+                onChange={(e) => {
+                  setQuality(parseInt(e.target.value));
+                  if (validationError) setValidationError(null);
+                }}
                 className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                min="1"
+                min="0"
                 max="100"
               />
             </div>
@@ -317,7 +365,10 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
                 <input
                   type="checkbox"
                   checked={grayscale}
-                  onChange={(e) => setGrayscale(e.target.checked)}
+                  onChange={(e) => {
+                    setGrayscale(e.target.checked);
+                    if (validationError) setValidationError(null);
+                  }}
                   className="w-4 h-4 accent-blue-500 cursor-pointer"
                 />
                 <span className="text-sm font-medium text-[hsl(var(--color-text))]">
@@ -329,7 +380,10 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
                 <input
                   type="checkbox"
                   checked={sharpen}
-                  onChange={(e) => setSharpen(e.target.checked)}
+                  onChange={(e) => {
+                    setSharpen(e.target.checked);
+                    if (validationError) setValidationError(null);
+                  }}
                   className="w-4 h-4 accent-blue-500 cursor-pointer"
                 />
                 <span className="text-sm font-medium text-[hsl(var(--color-text))]">
@@ -341,7 +395,10 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
                 <input
                   type="checkbox"
                   checked={flip}
-                  onChange={(e) => setFlip(e.target.checked)}
+                  onChange={(e) => {
+                    setFlip(e.target.checked);
+                    if (validationError) setValidationError(null);
+                  }}
                   className="w-4 h-4 accent-blue-500 cursor-pointer"
                 />
                 <span className="text-sm font-medium text-[hsl(var(--color-text))]">
@@ -353,7 +410,10 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
                 <input
                   type="checkbox"
                   checked={flop}
-                  onChange={(e) => setFlop(e.target.checked)}
+                  onChange={(e) => {
+                    setFlop(e.target.checked);
+                    if (validationError) setValidationError(null);
+                  }}
                   className="w-4 h-4 accent-blue-500 cursor-pointer"
                 />
                 <span className="text-sm font-medium text-[hsl(var(--color-text))]">
@@ -374,7 +434,10 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
                 id="blur"
                 type="range"
                 value={blur}
-                onChange={(e) => setBlur(parseFloat(e.target.value))}
+                onChange={(e) => {
+                  setBlur(parseFloat(e.target.value));
+                  if (validationError) setValidationError(null);
+                }}
                 className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
                 min="0"
                 max="10"
@@ -393,7 +456,10 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
               <select
                 id="rotate"
                 value={rotate}
-                onChange={(e) => setRotate(parseInt(e.target.value))}
+                onChange={(e) => {
+                  setRotate(parseInt(e.target.value));
+                  if (validationError) setValidationError(null);
+                }}
                 className="w-full px-3 py-2 bg-white border-2 border-blue-200 rounded-xl text-sm font-medium focus:border-blue-400 focus:outline-none transition-colors cursor-pointer"
               >
                 <option value="0">None</option>

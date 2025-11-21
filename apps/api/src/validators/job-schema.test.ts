@@ -182,15 +182,18 @@ describe("createJobSchema", () => {
       expect(error).toBeUndefined();
     });
 
-    it("should accept empty transformations object", () => {
+    it("should reject empty transformations object", () => {
       const { error } = createJobSchema.validate({
         inputUrl: "https://example.com/image.jpg",
         transformations: {},
       });
-      expect(error).toBeUndefined();
+      expect(error).toBeDefined();
+      expect(error?.message).toContain(
+        "At least one transformation property is required"
+      );
     });
 
-    it("should reject unknown transformation properties", () => {
+    it("should reject transformations with only unknown properties", () => {
       const { error } = createJobSchema.validate({
         inputUrl: "https://example.com/image.jpg",
         transformations: {

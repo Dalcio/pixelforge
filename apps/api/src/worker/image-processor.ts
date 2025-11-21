@@ -100,8 +100,9 @@ async function transformImage(
   let pipeline = sharp(buffer);
 
   if (!transformations) {
-    // No transformations, just optimize
-    return pipeline.jpeg({ quality: 80 }).toBuffer();
+    // No transformations, preserve original format and quality
+    const metadata = await sharp(buffer).metadata();
+    return pipeline.toFormat(metadata.format || "jpeg").toBuffer();
   }
 
   // Resize
@@ -143,11 +144,14 @@ async function transformImage(
     pipeline = pipeline.sharpen();
   }
 
-  // Quality
-  const quality = transformations.quality || 80;
-
-  // Always output as JPEG for consistency
-  pipeline = pipeline.jpeg({ quality });
+  // Quality - if not specified, preserve original quality
+  if (transformations.quality) {
+    pipeline = pipeline.jpeg({ quality: transformations.quality });
+  } else {
+    // Preserve original format and quality when quality is not specified
+    const metadata = await sharp(buffer).metadata();
+    pipeline = pipeline.toFormat(metadata.format || "jpeg");
+  }
 
   return pipeline.toBuffer();
 }
@@ -157,12 +161,19 @@ async function transformImage(
  */
 async function uploadToStorage(jobId: string, buffer: Buffer): Promise<string> {
   const bucket = admin.storage().bucket();
-  const fileName = `processed/${jobId}.jpg`;
+  
+  // Detect image format from buffer
+  const metadata = await sharp(buffer).metadata();
+  const format = metadata.format || "jpeg";
+  const extension = format === "jpeg" ? "jpg" : format;
+  const contentType = `image/${format}`;
+  
+  const fileName = `processed/${jobId}.${extension}`;
   const file = bucket.file(fileName);
 
   await file.save(buffer, {
     metadata: {
-      contentType: "image/jpeg",
+      contentType,
     },
   });
 
