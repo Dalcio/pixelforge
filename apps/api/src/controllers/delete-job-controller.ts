@@ -70,7 +70,8 @@ export const deleteJobController = async (
       id,
     });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     process.stderr.write(`[API] Error deleting job: ${errorMessage}\n`);
     res.status(500).json({
       error: "Failed to delete job",

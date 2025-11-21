@@ -106,7 +106,9 @@ export const disconnectRedis = async (): Promise<void> => {
       await client.quit();
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      process.stderr.write(`[API Redis] Error during disconnect: ${errorMsg}\n`);
+      process.stderr.write(
+        `[API Redis] Error during disconnect: ${errorMsg}\n`
+      );
       client.disconnect();
     }
   }

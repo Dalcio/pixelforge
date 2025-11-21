@@ -19,7 +19,9 @@ const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 
 if (missingVars.length > 0) {
   process.stderr.write(
-    `\n❌ [FATAL] Missing required environment variables:\n${missingVars.map((v) => `  - ${v}`).join("\n")}\n\nPlease check your .env file and try again.\n\n`
+    `\n❌ [FATAL] Missing required environment variables:\n${missingVars
+      .map((v) => `  - ${v}`)
+      .join("\n")}\n\nPlease check your .env file and try again.\n\n`
   );
   process.exit(1);
 }
@@ -45,11 +47,14 @@ process.on("uncaughtException", (error: Error) => {
 process.on(
   "unhandledRejection",
   (reason: unknown, promise: Promise<unknown>) => {
-    const errorMessage = reason instanceof Error ? reason.message : String(reason);
+    const errorMessage =
+      reason instanceof Error ? reason.message : String(reason);
     const errorStack = reason instanceof Error ? reason.stack : "";
-    
+
     process.stderr.write(
-      `\n❌ [FATAL] Unhandled Promise Rejection:\nReason: ${errorMessage}\n${errorStack ? `Stack: ${errorStack}\n` : ""}\nShutting down server due to unhandled rejection...\n`
+      `\n❌ [FATAL] Unhandled Promise Rejection:\nReason: ${errorMessage}\n${
+        errorStack ? `Stack: ${errorStack}\n` : ""
+      }\nShutting down server due to unhandled rejection...\n`
     );
 
     // Give time for logs to flush
@@ -89,7 +94,9 @@ async function startWorker() {
     });
 
     worker.on("failed", (job, err) => {
-      process.stderr.write(`[Worker] ✗ Job ${job?.id} failed: ${err.message}\n`);
+      process.stderr.write(
+        `[Worker] ✗ Job ${job?.id} failed: ${err.message}\n`
+      );
     });
 
     worker.on("error", (err) => {
@@ -149,7 +156,9 @@ process.on("SIGTERM", async () => {
 });
 
 process.on("SIGINT", async () => {
-  process.stdout.write("\n⚠ SIGINT received (Ctrl+C), closing server gracefully...\n");
+  process.stdout.write(
+    "\n⚠ SIGINT received (Ctrl+C), closing server gracefully...\n"
+  );
 
   // Close worker first
   if (worker) {

@@ -53,17 +53,20 @@
 ### **Components**
 
 - **Frontend** (Vite + React + TypeScript + Tailwind CSS)
+
   - Real-time job monitoring via Firestore
   - Beautiful, responsive UI
   - Image transformation controls
 
 - **API** (Express + TypeScript)
+
   - RESTful endpoints
   - Request validation (Joi)
   - Rate limiting & CORS
   - Job management
 
 - **Worker** (BullMQ + Sharp)
+
   - Background image processing
   - Progress tracking (0% → 100%)
   - Error handling & retry logic
@@ -120,12 +123,14 @@ This will install all packages in the monorepo using pnpm workspaces.
 Create the following `.env` files based on the `.env.example` templates:
 
 #### **Root `.env`** (Optional - for local Redis)
+
 ```env
 REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
 
 #### **API `.env`** (`apps/api/.env`)
+
 ```env
 # Server
 NODE_ENV=development
@@ -148,6 +153,7 @@ FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
 ```
 
 #### **Web `.env`** (`apps/web/.env`)
+
 ```env
 # API endpoint
 VITE_API_BASE=http://localhost:3000
@@ -193,6 +199,7 @@ pnpm dev
 ```
 
 This starts:
+
 - API server on `http://localhost:3000`
 - Worker (automatically started with API)
 - Frontend on `http://localhost:5173`
@@ -324,6 +331,7 @@ After deployment, update:
 ### **Endpoints**
 
 #### **1. Create Job**
+
 ```http
 POST /api/jobs
 Content-Type: application/json
@@ -340,6 +348,7 @@ Content-Type: application/json
 ```
 
 **Response (201)**:
+
 ```json
 {
   "id": "abc123",
@@ -348,11 +357,13 @@ Content-Type: application/json
 ```
 
 #### **2. Get Job Status**
+
 ```http
 GET /api/jobs/:id
 ```
 
 **Response (200)**:
+
 ```json
 {
   "id": "abc123",
@@ -366,11 +377,13 @@ GET /api/jobs/:id
 ```
 
 #### **3. List Jobs**
+
 ```http
 GET /api/jobs
 ```
 
 **Response (200)**:
+
 ```json
 {
   "jobs": [...],
@@ -379,33 +392,36 @@ GET /api/jobs
 ```
 
 #### **4. Retry Failed Job**
+
 ```http
 PUT /api/jobs/:id/retry
 ```
 
 #### **5. Delete Job**
+
 ```http
 DELETE /api/jobs/:id
 ```
 
 #### **6. Health Check**
+
 ```http
 GET /health
 ```
 
 ### **Transformation Options**
 
-| Option | Type | Range | Description |
-|--------|------|-------|-------------|
-| `width` | number | 1-4000 | Target width in pixels |
-| `height` | number | 1-4000 | Target height in pixels |
-| `grayscale` | boolean | - | Convert to grayscale |
-| `blur` | number | 0-10 | Blur amount |
-| `sharpen` | boolean | - | Apply sharpening |
-| `rotate` | number | 0, 90, 180, 270 | Rotation angle |
-| `flip` | boolean | - | Flip vertically |
-| `flop` | boolean | - | Flip horizontally |
-| `quality` | number | 1-100 | JPEG quality |
+| Option      | Type    | Range           | Description             |
+| ----------- | ------- | --------------- | ----------------------- |
+| `width`     | number  | 1-4000          | Target width in pixels  |
+| `height`    | number  | 1-4000          | Target height in pixels |
+| `grayscale` | boolean | -               | Convert to grayscale    |
+| `blur`      | number  | 0-10            | Blur amount             |
+| `sharpen`   | boolean | -               | Apply sharpening        |
+| `rotate`    | number  | 0, 90, 180, 270 | Rotation angle          |
+| `flip`      | boolean | -               | Flip vertically         |
+| `flop`      | boolean | -               | Flip horizontally       |
+| `quality`   | number  | 1-100           | JPEG quality            |
 
 ### **Error Codes**
 
@@ -487,24 +503,29 @@ pixelforge/
 ## 🐛 Troubleshooting
 
 ### **"Redis connection failed"**
+
 - Check `UPSTASH_REDIS_URL` or `REDIS_HOST` in `.env`
 - Verify Upstash database is active
 - For local Redis, ensure `redis-server` is running
 
 ### **"Firebase not initialized"**
+
 - Verify all `FIREBASE_*` variables are set
 - Check Firebase service account JSON is valid
 - Ensure Firestore and Storage are enabled in Firebase Console
 
 ### **"CORS error"**
+
 - Add your frontend URL to `ALLOWED_ORIGINS`
 - Format: `http://localhost:5173,https://yourdomain.com`
 
 ### **"Rate limit exceeded"**
+
 - Wait 15 minutes or adjust limits in `rate-limiter.ts`
 - Health check endpoint (`/health`) is exempt
 
 ### **"Job stuck in pending"**
+
 - Check worker logs for errors
 - Verify Redis queue is processing
 - Restart API server
