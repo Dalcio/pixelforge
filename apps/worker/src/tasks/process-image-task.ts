@@ -1,6 +1,13 @@
 import sharp from "sharp";
 import type { TransformationOptions } from "@fluximage/types";
 
+export type OutputFormat = "jpeg" | "png" | "webp" | "auto";
+
+export interface ProcessImageOptions extends TransformationOptions {
+  outputFormat?: OutputFormat;
+  stripMetadata?: boolean;
+}
+
 export class ProcessingError extends Error {
   constructor(
     message: string,
@@ -14,12 +21,30 @@ export class ProcessingError extends Error {
 
 export const processImage = async (
   buffer: Buffer,
-  transformations?: TransformationOptions
+  transformations?: ProcessImageOptions
 ): Promise<Buffer> => {
   try {
     const options = transformations || {};
 
     let pipeline = sharp(buffer);
+
+    // Strip metadata by default for privacy and smaller file size
+    if (options.stripMetadata !== false) {
+      try {
+        pipeline = pipeline.withMetadata({
+          // Keep orientation, remove everything else
+          orientation: undefined,
+        });
+      } catch (error) {
+        throw new ProcessingError(
+          `Failed to strip metadata: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          "strip-metadata",
+          error instanceof Error ? error : undefined
+        );
+      }
+    }
 
     // Rotation
     if (options.rotate) {
@@ -133,20 +158,76 @@ export const processImage = async (
       }
     }
 
-    // Convert to JPEG with quality
+    // Convert to output format with optimizations
     try {
-      return await pipeline
-        .jpeg({
-          quality: options.quality || 85,
-          progressive: true,
-        })
-        .toBuffer();
+      const outputFormat = options.outputFormat || "jpeg";
+      const quality = options.quality || 85;
+
+      switch (outputFormat) {
+        case "jpeg":
+          return await pipeline
+            .jpeg({
+              quality,
+              progressive: true,
+              mozjpeg: true, // Use mozjpeg for better compression
+              chromaSubsampling: "4:2:0", // Standard chroma subsampling
+            })
+            .toBuffer();
+
+        case "png":
+          return await pipeline
+            .png({
+              compressionLevel: 9, // Maximum compression (0-9)
+              adaptiveFiltering: true,
+              palette: true, // Use palette if possible (8-bit)
+            })
+            .toBuffer();
+
+        case "webp":
+          return await pipeline
+            .webp({
+              quality,
+              effort: 6, // Higher effort = better compression (0-6)
+              lossless: false,
+            })
+            .toBuffer();
+
+        case "auto":
+          // Auto-detect best format based on source
+          const metadata = await sharp(buffer).metadata();
+          if (metadata.hasAlpha) {
+            // Use PNG for images with transparency
+            return await pipeline
+              .png({
+                compressionLevel: 9,
+                adaptiveFiltering: true,
+                palette: true,
+              })
+              .toBuffer();
+          } else {
+            // Use WebP for other images (best compression)
+            return await pipeline
+              .webp({
+                quality,
+                effort: 6,
+                lossless: false,
+              })
+              .toBuffer();
+          }
+
+        default:
+          throw new ProcessingError(
+            `Unsupported output format: ${outputFormat}`,
+            "format-conversion",
+            undefined
+          );
+      }
     } catch (error) {
       throw new ProcessingError(
-        `Failed to convert to JPEG: ${
+        `Failed to convert image format: ${
           error instanceof Error ? error.message : "Unknown error"
         }`,
-        "jpeg-conversion",
+        "format-conversion",
         error instanceof Error ? error : undefined
       );
     }

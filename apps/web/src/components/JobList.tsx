@@ -6,6 +6,7 @@ interface JobListProps {
   loading: boolean;
   error: string | null;
   onRetry: () => void;
+  onRetryJob?: (job: JobResponse) => void;
 }
 
 function EmptyState() {
@@ -100,7 +101,7 @@ function ErrorState({
   );
 }
 
-export function JobList({ jobs, loading, error, onRetry }: JobListProps) {
+export function JobList({ jobs, loading, error, onRetry, onRetryJob }: JobListProps) {
   if (loading && jobs.length === 0) {
     return (
       <section aria-label="Loading jobs">
@@ -151,7 +152,7 @@ export function JobList({ jobs, loading, error, onRetry }: JobListProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {jobs.map((job) => (
-          <JobCard key={job.id} job={job} />
+          <JobCard key={job.id} job={job} onRetry={onRetryJob} />
         ))}
       </div>
     </section>

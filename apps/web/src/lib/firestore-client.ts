@@ -13,6 +13,7 @@ export interface FirestoreJob {
   inputUrl: string;
   outputUrl?: string;
   status: string;
+  progress: number;
   error?: string;
   transformations?: Record<string, unknown>;
   createdAt: { seconds: number; nanoseconds: number } | string;
@@ -35,6 +36,7 @@ function mapFirestoreJobToResponse(doc: FirestoreJob): JobResponse {
     status: doc.status as JobResponse["status"],
     inputUrl: doc.inputUrl,
     outputUrl: doc.outputUrl,
+    progress: doc.progress || 0,
     error: doc.error,
     transformations: doc.transformations,
     createdAt: convertTimestamp(doc.createdAt),
