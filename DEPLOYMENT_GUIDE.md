@@ -120,7 +120,7 @@ You can deploy the API service on **Render** (recommended) or **Railway**. Choos
 - **Root Directory**: Leave empty (monorepo handled by build command)
 - **Build Command**:
   ```bash
-  npm install -g pnpm && pnpm install && pnpm --filter @fluximage/api build
+  npm install -g pnpm && pnpm install --frozen-lockfile && bash scripts/build-api.sh
   ```
 - **Start Command**:
   ```bash
@@ -222,7 +222,7 @@ The Worker service runs continuously to process image jobs.
 - **Branch**: `main`
 - **Build Command**:
   ```bash
-  npm install -g pnpm && pnpm install && pnpm --filter @fluximage/worker build
+  npm install -g pnpm && pnpm install --frozen-lockfile && bash scripts/build-worker.sh
   ```
 - **Start Command**:
   ```bash
