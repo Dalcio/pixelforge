@@ -335,6 +335,7 @@ Access the full interactive API documentation with request/response examples:
 - **Local**: [http://localhost:3000/docs](http://localhost:3000/docs)
 
 The Swagger UI provides:
+
 - 📋 Complete endpoint documentation
 - 🧪 Interactive API testing ("Try it out" feature)
 - 📊 Request/response schemas

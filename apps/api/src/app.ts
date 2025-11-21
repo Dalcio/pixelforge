@@ -19,10 +19,14 @@ export const createApp = (): Express => {
   app.use(createRateLimiter());
 
   // Swagger API documentation (excluded from rate limiting)
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-    customCss: ".swagger-ui .topbar { display: none }",
-    customSiteTitle: "PixelForge API Documentation",
-  }));
+  app.use(
+    "/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, {
+      customCss: ".swagger-ui .topbar { display: none }",
+      customSiteTitle: "PixelForge API Documentation",
+    })
+  );
 
   /**
    * @openapi

@@ -18,7 +18,11 @@ export const createRateLimiter = () => {
     legacyHeaders: false, // Disable `X-RateLimit-*` headers
     skip: (req: Request) => {
       // Skip rate limiting for health check and docs endpoints
-      return req.path === "/health" || req.path === "/api/health" || req.path.startsWith("/docs");
+      return (
+        req.path === "/health" ||
+        req.path === "/api/health" ||
+        req.path.startsWith("/docs")
+      );
     },
     handler: (_req: Request, res: Response) => {
       res.status(429).json({

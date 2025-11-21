@@ -7,14 +7,17 @@ Swagger/OpenAPI documentation has been successfully integrated into the PixelFor
 ## 📚 Access the Documentation
 
 ### Production
+
 - **URL**: [https://pixelforge-smp3.onrender.com/docs](https://pixelforge-smp3.onrender.com/docs)
 
 ### Local Development
+
 - **URL**: [http://localhost:3000/docs](http://localhost:3000/docs)
 
 ## 🎯 Features
 
 The Swagger UI provides:
+
 - **Interactive API Testing**: Try out endpoints directly in the browser
 - **Complete Documentation**: All endpoints, parameters, and response schemas
 - **Request/Response Examples**: Sample payloads for each operation
@@ -24,6 +27,7 @@ The Swagger UI provides:
 ## 📋 Available Endpoints
 
 ### Jobs Management
+
 - `POST /api/jobs` - Create a new image processing job
 - `GET /api/jobs` - List all jobs
 - `GET /api/jobs/{id}` - Get job status
@@ -31,6 +35,7 @@ The Swagger UI provides:
 - `DELETE /api/jobs/{id}` - Delete a job
 
 ### Health Check
+
 - `GET /health` - Service health check
 
 ## 🚀 Deployment
@@ -38,12 +43,14 @@ The Swagger UI provides:
 ### To Deploy Changes
 
 1. **Build locally to verify**:
+
    ```bash
    cd apps/api
    pnpm build
    ```
 
 2. **Commit and push changes**:
+
    ```bash
    git add .
    git commit -m "Add Swagger API documentation"
@@ -51,6 +58,7 @@ The Swagger UI provides:
    ```
 
 3. **Render will automatically deploy** (if you have auto-deploy enabled)
+
    - Or manually deploy from the Render dashboard
 
 4. **Verify deployment**:
@@ -67,9 +75,11 @@ The Swagger UI provides:
 ## 🔧 Configuration Files
 
 ### Created
+
 - `apps/api/src/lib/swagger-config.ts` - Swagger configuration and schemas
 
 ### Modified
+
 - `apps/api/src/app.ts` - Added Swagger middleware and health endpoint docs
 - `apps/api/src/routes/job-routes.ts` - Added OpenAPI annotations to all routes
 - `apps/api/src/middlewares/rate-limiter.ts` - Excluded /docs from rate limiting
@@ -78,6 +88,7 @@ The Swagger UI provides:
 ## 🎨 Customization
 
 The Swagger UI has been customized with:
+
 - Hidden top bar (cleaner look)
 - Custom page title: "PixelForge API Documentation"
 - Production and development server URLs pre-configured
@@ -140,6 +151,7 @@ router.post("/your-endpoint", yourController);
 ## 📞 Support
 
 If you encounter any issues:
+
 1. Check build logs: `pnpm build`
 2. Verify all dependencies installed: `pnpm install`
 3. Restart the development server

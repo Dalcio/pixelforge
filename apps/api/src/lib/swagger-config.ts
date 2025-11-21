@@ -98,8 +98,7 @@ const options: swaggerJsdoc.Options = {
             },
           },
           minProperties: 1,
-          description:
-            "At least one transformation property is required",
+          description: "At least one transformation property is required",
         },
         CreateJobRequest: {
           type: "object",
