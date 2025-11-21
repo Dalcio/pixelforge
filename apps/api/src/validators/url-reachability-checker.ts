@@ -48,13 +48,29 @@ export const checkUrlReachability = async (
         const contentType = res.headers
           ? res.headers["content-type"]
           : undefined;
-        if (contentType && !contentType.startsWith("image/")) {
-          resolve({
-            reachable: false,
-            reason: `Invalid content type: ${contentType}. Expected image/* type.`,
-            statusCode,
-          });
-          return;
+        // Some CDNs return generic binary types for HEAD requests but correct image types for GET.
+        // Accept various content types that could indicate image content.
+        const acceptedTypes = [
+          "image/",              // All image types (jpeg, png, webp, gif, svg, etc.)
+          "binary/octet-stream", // Generic binary (used by some CDNs)
+          "application/octet-stream", // Generic binary
+          "multipart/byteranges", // For range requests
+          "video/",              // Some servers misclassify images as video
+        ];
+        
+        if (contentType) {
+          const isAcceptedType = acceptedTypes.some(type => 
+            contentType.toLowerCase().startsWith(type)
+          );
+          
+          if (!isAcceptedType) {
+            resolve({
+              reachable: false,
+              reason: `Invalid content type: ${contentType}. Expected image/* type.`,
+              statusCode,
+            });
+            return;
+          }
         }
 
         resolve({

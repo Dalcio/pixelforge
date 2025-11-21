@@ -166,4 +166,195 @@ describe("checkUrlReachability", () => {
     expect(result.reachable).toBe(false);
     expect(result.reason).toBeDefined();
   });
+
+  it("should accept image/* content types", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "image/jpeg" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/image.jpg");
+    expect(result.reachable).toBe(true);
+  });
+
+  it("should accept binary/octet-stream content type (for CDNs)", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "binary/octet-stream" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/image.jpg");
+    expect(result.reachable).toBe(true);
+  });
+
+  it("should accept application/octet-stream content type", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "application/octet-stream" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/image.jpg");
+    expect(result.reachable).toBe(true);
+  });
+
+  it("should accept image/png content type", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "image/png" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/image.png");
+    expect(result.reachable).toBe(true);
+  });
+
+  it("should accept image/webp content type", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "image/webp" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/image.webp");
+    expect(result.reachable).toBe(true);
+  });
+
+  it("should accept image/gif content type", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "image/gif" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/image.gif");
+    expect(result.reachable).toBe(true);
+  });
+
+  it("should accept multipart/byteranges content type", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "multipart/byteranges" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/image.jpg");
+    expect(result.reachable).toBe(true);
+  });
+
+  it("should handle content-type with charset parameter", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "image/jpeg; charset=utf-8" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/image.jpg");
+    expect(result.reachable).toBe(true);
+  });
+
+  it("should be case-insensitive for content types", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "IMAGE/JPEG" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/image.jpg");
+    expect(result.reachable).toBe(true);
+  });
+
+  it("should reject text/html content type", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "text/html" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/page.html");
+    expect(result.reachable).toBe(false);
+    expect(result.reason).toContain("Invalid content type");
+    expect(result.reason).toContain("text/html");
+  });
+
+  it("should reject application/pdf content type", async () => {
+    const mockHttpRequest = vi.fn((_url, _options, callback) => {
+      setTimeout(() => {
+        callback({
+          statusCode: 200,
+          headers: { "content-type": "application/pdf" },
+        });
+      }, 0);
+      return mockRequest;
+    });
+
+    vi.mocked(http.request).mockImplementation(mockHttpRequest as any);
+
+    const result = await checkUrlReachability("http://example.com/doc.pdf");
+    expect(result.reachable).toBe(false);
+    expect(result.reason).toContain("Invalid content type");
+    expect(result.reason).toContain("application/pdf");
+  });
 });
