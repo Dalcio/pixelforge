@@ -353,7 +353,9 @@ export function JobCard({ job, onRetry }: JobCardProps) {
                 className="p-3 bg-red-50 border border-red-100 rounded-xl"
                 role="alert"
               >
-                <p className="text-xs font-semibold text-red-600 mb-1">Failed</p>
+                <p className="text-xs font-semibold text-red-600 mb-1">
+                  Failed
+                </p>
                 <p className="text-xs text-red-500 line-clamp-2">
                   {getUserFriendlyError(job.error)}
                 </p>

@@ -101,7 +101,13 @@ function ErrorState({
   );
 }
 
-export function JobList({ jobs, loading, error, onRetry, onRetryJob }: JobListProps) {
+export function JobList({
+  jobs,
+  loading,
+  error,
+  onRetry,
+  onRetryJob,
+}: JobListProps) {
   if (loading && jobs.length === 0) {
     return (
       <section aria-label="Loading jobs">

@@ -58,7 +58,7 @@ describe("E2E: Job Lifecycle Integration Tests", () => {
   describe("Happy Path: Valid Image Job", () => {
     it("should accept and queue a valid job request", async () => {
       const jobId = "test-job-123";
-      
+
       // Mock Firestore responses
       mockCollection.add.mockResolvedValue({ id: jobId });
       mockDoc.get.mockResolvedValue({
@@ -335,12 +335,10 @@ describe("E2E: Job Lifecycle Integration Tests", () => {
       mockCollection.add.mockResolvedValue({ id: "test-id" });
       mockQueue.add.mockResolvedValue({ id: "test-id" });
 
-      const response = await request(app)
-        .post("/api/jobs")
-        .send({
-          imageUrl: validImageUrl,
-          transformations: validTransformations,
-        });
+      const response = await request(app).post("/api/jobs").send({
+        imageUrl: validImageUrl,
+        transformations: validTransformations,
+      });
 
       // First request should succeed (or hit rate limit if already exceeded in other tests)
       expect([201, 429]).toContain(response.status);
