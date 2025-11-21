@@ -7,7 +7,7 @@ import { Request, Response } from "express";
  */
 const getAllowedOrigins = (): string[] => {
   const allowedOriginsEnv = process.env.ALLOWED_ORIGINS || "";
-  
+
   if (!allowedOriginsEnv) {
     // Default to localhost:5173 for development
     return ["http://localhost:5173"];
@@ -29,7 +29,10 @@ export const createCorsMiddleware = () => {
   const allowedOrigins = getAllowedOrigins();
 
   const corsOptions: CorsOptions = {
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void
+    ) => {
       // Allow requests with no origin (like mobile apps, curl, Postman)
       if (!origin) {
         return callback(null, true);

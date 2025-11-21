@@ -3,6 +3,7 @@
 ## Overview
 
 FluxImage uses Firebase for two services:
+
 - **Firestore**: Real-time database for job state
 - **Storage**: File storage for processed images
 
@@ -51,7 +52,7 @@ service cloud.firestore {
     match /jobs/{jobId} {
       // Allow read for all (real-time updates)
       allow read: if true;
-      
+
       // Allow write only from backend (server-side)
       // In production, use Firebase Auth or API keys
       allow write: if true;
@@ -71,24 +72,29 @@ FluxImage requires a composite index for efficient querying. We provide a `fires
 **Option 1: Deploy via Firebase CLI (Recommended)**
 
 1. Install Firebase CLI:
+
 ```bash
 npm install -g firebase-tools
 ```
 
 2. Login to Firebase:
+
 ```bash
 firebase login
 ```
 
 3. Initialize Firebase in your project (if not already done):
+
 ```bash
 firebase init
 ```
-   - Select "Firestore" and "Storage"
-   - Use existing project
-   - Accept default files (firestore.rules, firestore.indexes.json)
+
+- Select "Firestore" and "Storage"
+- Use existing project
+- Accept default files (firestore.rules, firestore.indexes.json)
 
 4. Deploy indexes:
+
 ```bash
 firebase deploy --only firestore:indexes
 ```
@@ -109,6 +115,7 @@ If you prefer manual creation:
 **Why this index?**
 
 The index on `createdAt DESC` is required because:
+
 - The API queries jobs ordered by creation date (newest first)
 - Without this index, Firestore will show warnings and may reject queries
 - This ensures fast retrieval of recent jobs
@@ -146,7 +153,7 @@ service firebase.storage {
     match /processed/{allPaths=**} {
       // Allow read for all (public URLs)
       allow read: if true;
-      
+
       // Allow write only from backend
       allow write: if true;
     }
@@ -191,7 +198,8 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----E
 FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 ```
 
-**Important**: 
+**Important**:
+
 - Keep private key in quotes
 - Use `\n` for newlines
 - Never commit `.env` to git
@@ -218,7 +226,7 @@ const firebaseConfig = {
   projectId: "your-project-id",
   storageBucket: "your-project.appspot.com",
   messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890"
+  appId: "1:123456789012:web:abcdef1234567890",
 };
 ```
 
@@ -250,6 +258,7 @@ pnpm dev
 ```
 
 Check logs for:
+
 ```
 ✓ Firebase initialized successfully
 ```
@@ -276,7 +285,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /jobs/{jobId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && 
+      allow write: if request.auth != null &&
                       request.auth.token.admin == true;
     }
   }
@@ -298,6 +307,7 @@ Add CORS policy for public access:
 ```
 
 Apply with `gsutil`:
+
 ```bash
 gsutil cors set cors.json gs://your-bucket.appspot.com
 ```
@@ -305,6 +315,7 @@ gsutil cors set cors.json gs://your-bucket.appspot.com
 ### 3. Budget Alerts
 
 Set up billing alerts:
+
 1. Go to **Usage and billing**
 2. Set budget alerts
 3. Monitor Firestore reads/writes
@@ -313,11 +324,13 @@ Set up billing alerts:
 ### 4. Firestore Limits
 
 Free tier (Spark):
+
 - 50K reads/day
 - 20K writes/day
 - 1GB storage
 
 Paid tier (Blaze):
+
 - Pay as you go
 - First 50K reads free/day
 - $0.06 per 100K reads after
@@ -340,7 +353,8 @@ Paid tier (Blaze):
 
 **Cause**: Malformed private key in .env
 
-**Solution**: 
+**Solution**:
+
 - Ensure newlines are `\n`
 - Wrap in quotes
 - No extra spaces
@@ -350,6 +364,7 @@ Paid tier (Blaze):
 **Cause**: Dependencies not installed
 
 **Solution**:
+
 ```bash
 pnpm install
 ```

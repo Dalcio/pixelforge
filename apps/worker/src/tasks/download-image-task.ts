@@ -40,8 +40,11 @@ export const downloadImage = async (url: string): Promise<Buffer> => {
       }
 
       // Normalize content-type (remove charset and other parameters)
-      const normalizedContentType = contentType.split(";")[0].trim().toLowerCase();
-      
+      const normalizedContentType = contentType
+        .split(";")[0]
+        .trim()
+        .toLowerCase();
+
       if (!normalizedContentType.startsWith("image/")) {
         throw new DownloadError(
           `URL does not point to an image - received Content-Type: ${normalizedContentType}`,

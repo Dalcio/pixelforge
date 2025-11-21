@@ -2,14 +2,17 @@ import express, { Express } from "express";
 import { createJobRoutes } from "./routes/job-routes";
 import { errorHandler } from "./middlewares/error-handler";
 import { createRateLimiter } from "./middlewares/rate-limiter";
-import { createCorsMiddleware, handleCorsError } from "./middlewares/cors-config";
+import {
+  createCorsMiddleware,
+  handleCorsError,
+} from "./middlewares/cors-config";
 
 export const createApp = (): Express => {
   const app = express();
 
   app.use(createCorsMiddleware());
   app.use(express.json({ limit: "1mb" }));
-  
+
   // Apply rate limiting to all routes except /health
   app.use(createRateLimiter());
 

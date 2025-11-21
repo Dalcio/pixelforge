@@ -1,9 +1,9 @@
 /**
  * Cloud Function for scheduled job cleanup
- * 
+ *
  * Deletes jobs older than 30 days from Firestore and optionally archives them to Storage.
  * Triggered by Cloud Scheduler (recommended: daily at 2 AM)
- * 
+ *
  * Environment Variables:
  * - ARCHIVE_ENABLED: Set to "true" to archive jobs before deletion (default: false)
  * - JOB_RETENTION_DAYS: Number of days to retain jobs (default: 30)
@@ -42,12 +42,15 @@ const getCutoffDate = (retentionDays: number): Date => {
 /**
  * Archive a job document to Cloud Storage before deletion
  */
-const archiveJob = async (jobId: string, jobData: admin.firestore.DocumentData): Promise<boolean> => {
+const archiveJob = async (
+  jobId: string,
+  jobData: admin.firestore.DocumentData
+): Promise<boolean> => {
   try {
     const bucket = storage.bucket();
     const archivePath = `archives/jobs/${new Date().getFullYear()}/${jobId}.json`;
     const file = bucket.file(archivePath);
-    
+
     await file.save(JSON.stringify(jobData, null, 2), {
       contentType: "application/json",
       metadata: {
@@ -55,7 +58,7 @@ const archiveJob = async (jobId: string, jobData: admin.firestore.DocumentData):
         originalCreatedAt: jobData.createdAt,
       },
     });
-    
+
     functions.logger.info(`Archived job ${jobId} to ${archivePath}`);
     return true;
   } catch (error) {
@@ -72,7 +75,7 @@ const deleteProcessedImage = async (jobId: string): Promise<void> => {
     const bucket = storage.bucket();
     const imagePath = `processed/${jobId}.jpg`;
     const file = bucket.file(imagePath);
-    
+
     const [exists] = await file.exists();
     if (exists) {
       await file.delete();
@@ -90,8 +93,7 @@ const deleteProcessedImage = async (jobId: string): Promise<void> => {
  */
 export const cleanupOldJobs = functions
   .region("us-central1") // Change to your preferred region
-  .pubsub
-  .schedule("0 2 * * *") // Daily at 2 AM (Cron format)
+  .pubsub.schedule("0 2 * * *") // Daily at 2 AM (Cron format)
   .timeZone("America/New_York") // Change to your timezone
   .onRun(async (_context: functions.EventContext) => {
     const startTime = Date.now();
@@ -126,7 +128,9 @@ export const cleanupOldJobs = functions
       const snapshot = await oldJobsQuery.get();
       stats.totalScanned = snapshot.size;
 
-      functions.logger.info(`Found ${stats.totalScanned} jobs older than ${retentionDays} days`);
+      functions.logger.info(
+        `Found ${stats.totalScanned} jobs older than ${retentionDays} days`
+      );
 
       if (snapshot.empty) {
         functions.logger.info("No old jobs to clean up");
@@ -135,7 +139,10 @@ export const cleanupOldJobs = functions
 
       // Use batch for efficient deletion
       const batch = db.batch();
-      const jobsToDelete: Array<{ id: string; data: admin.firestore.DocumentData }> = [];
+      const jobsToDelete: Array<{
+        id: string;
+        data: admin.firestore.DocumentData;
+      }> = [];
 
       snapshot.docs.forEach((doc: admin.firestore.QueryDocumentSnapshot) => {
         jobsToDelete.push({
@@ -195,8 +202,7 @@ export const cleanupOldJobs = functions
  */
 export const manualCleanup = functions
   .region("us-central1")
-  .https
-  .onRequest(async (req: Request, res: Response) => {
+  .https.onRequest(async (req: Request, res: Response) => {
     // Simple API key authentication (use Firebase Auth in production)
     const apiKey = req.get("X-API-Key");
     const expectedKey = process.env.CLEANUP_API_KEY;
@@ -208,14 +214,14 @@ export const manualCleanup = functions
 
     try {
       functions.logger.info("Manual cleanup triggered");
-      
-      const retentionDays = parseInt(req.query.days as string || "30", 10);
+
+      const retentionDays = parseInt((req.query.days as string) || "30", 10);
       const archiveEnabled = req.query.archive === "true";
-      
+
       // Temporarily set env vars for this execution
       const originalArchive = process.env.ARCHIVE_ENABLED;
       const originalRetention = process.env.JOB_RETENTION_DAYS;
-      
+
       process.env.ARCHIVE_ENABLED = archiveEnabled.toString();
       process.env.JOB_RETENTION_DAYS = retentionDays.toString();
 
@@ -239,13 +245,13 @@ export const manualCleanup = functions
 
       if (!snapshot.empty) {
         const batch = db.batch();
-        
+
         for (const doc of snapshot.docs) {
           if (archiveEnabled) {
             const archived = await archiveJob(doc.id, doc.data());
             if (archived) stats.totalArchived++;
           }
-          
+
           await deleteProcessedImage(doc.id);
           batch.delete(doc.ref);
           stats.deletedJobs.push(doc.id);

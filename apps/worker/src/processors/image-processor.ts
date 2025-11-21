@@ -1,6 +1,9 @@
 import { Job } from "bullmq";
 import { QueueJob, JobStatus } from "@fluximage/types";
-import { updateJobStatus, updateJobProgress } from "../tasks/update-status-task";
+import {
+  updateJobStatus,
+  updateJobProgress,
+} from "../tasks/update-status-task";
 import { downloadImage, DownloadError } from "../tasks/download-image-task";
 import { validateImage } from "../tasks/validate-image-task";
 import { processImage, ProcessingError } from "../tasks/process-image-task";

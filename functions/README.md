@@ -17,11 +17,13 @@ The job cleanup function automatically deletes jobs older than 30 days from Fire
 ## Prerequisites
 
 1. **Firebase CLI** installed:
+
    ```bash
    npm install -g firebase-tools
    ```
 
 2. **Firebase Project** with:
+
    - Firestore enabled
    - Cloud Storage enabled
    - Billing enabled (required for Cloud Functions)
@@ -68,6 +70,7 @@ firebase functions:config:get
 ```
 
 Expected output:
+
 ```json
 {
   "cleanup": {
@@ -88,6 +91,7 @@ npm install
 ```
 
 or with pnpm:
+
 ```bash
 cd functions
 pnpm install
@@ -117,6 +121,7 @@ firebase deploy --only functions
 ### Deploy with Specific Region
 
 Edit `functions/src/index.ts` and change region:
+
 ```typescript
 export const cleanupOldJobs = functions
   .region("us-central1") // Change to your region
@@ -126,12 +131,14 @@ export const cleanupOldJobs = functions
 ```
 
 Available regions:
+
 - `us-central1` (Iowa)
 - `us-east1` (South Carolina)
 - `europe-west1` (Belgium)
 - `asia-northeast1` (Tokyo)
 
 Then deploy:
+
 ```bash
 firebase deploy --only functions
 ```
@@ -143,6 +150,7 @@ firebase functions:list
 ```
 
 You should see:
+
 - `cleanupOldJobs` (scheduled)
 - `manualCleanup` (http)
 
@@ -160,19 +168,19 @@ The function runs daily at 2 AM by default. Modify schedule in `functions/src/in
 
 ```typescript
 // Every day at 2 AM
-"0 2 * * *"
+"0 2 * * *";
 
 // Every day at midnight
-"0 0 * * *"
+"0 0 * * *";
 
 // Every 6 hours
-"0 */6 * * *"
+"0 */6 * * *";
 
 // Every Sunday at 3 AM
-"0 3 * * 0"
+"0 3 * * 0";
 
 // First day of month at midnight
-"0 0 1 * *"
+"0 0 1 * *";
 ```
 
 Reference: [Cron format](https://crontab.guru/)
@@ -235,6 +243,7 @@ firebase functions:log --only manualCleanup
 ### Log Format
 
 Successful execution:
+
 ```
 INFO: Starting scheduled job cleanup...
 INFO: Configuration: { archiveEnabled: true, retentionDays: 30, cutoffDate: "2024-10-21T02:00:00.000Z" }
@@ -311,16 +320,19 @@ gs://YOUR-PROJECT.appspot.com/
 ### Function Not Running
 
 **Check Schedule**:
+
 ```bash
 firebase functions:list
 ```
 
 **Check Logs**:
+
 ```bash
 firebase functions:log --only cleanupOldJobs --since 7d
 ```
 
 **Verify Cloud Scheduler**:
+
 1. Go to Cloud Console → Cloud Scheduler
 2. Find job: `firebase-schedule-cleanupOldJobs-us-central1`
 3. Check "Last run" and "Next run"
@@ -330,6 +342,7 @@ firebase functions:log --only cleanupOldJobs --since 7d
 **Error**: "Missing or insufficient permissions"
 
 **Solution**: Ensure function has proper IAM roles:
+
 ```bash
 gcloud projects add-iam-policy-binding YOUR-PROJECT-ID \
   --member serviceAccount:YOUR-PROJECT@appspot.gserviceaccount.com \
@@ -345,16 +358,17 @@ gcloud projects add-iam-policy-binding YOUR-PROJECT-ID \
 **Error**: "Function execution took longer than 60s"
 
 **Solution 1**: Increase batch limit in code:
+
 ```typescript
 .limit(500) // Reduce to 100 or 200
 ```
 
 **Solution 2**: Increase function timeout:
+
 ```typescript
 export const cleanupOldJobs = functions
   .runWith({ timeoutSeconds: 540 }) // 9 minutes (max)
-  .pubsub
-  .schedule("0 2 * * *")
+  .pubsub.schedule("0 2 * * *");
 ```
 
 ### Archive Failures
@@ -362,6 +376,7 @@ export const cleanupOldJobs = functions
 **Error**: "Failed to archive job"
 
 **Check bucket access**:
+
 ```bash
 gsutil iam get gs://YOUR-PROJECT.appspot.com
 ```
@@ -373,6 +388,7 @@ gsutil iam get gs://YOUR-PROJECT.appspot.com
 ### 1. Disable Manual Cleanup in Production
 
 Remove or comment out the `manualCleanup` function:
+
 ```typescript
 // export const manualCleanup = functions...
 ```
@@ -388,9 +404,10 @@ Track all job deletions in Cloud Logging
 ### 4. Implement Soft Deletes (Alternative)
 
 Instead of hard deletion, add a `deletedAt` field:
+
 ```typescript
-await batch.update(jobRef, { 
-  deletedAt: new Date().toISOString() 
+await batch.update(jobRef, {
+  deletedAt: new Date().toISOString(),
 });
 ```
 
@@ -436,6 +453,7 @@ firebase functions:delete cleanupOldJobs
 ## Summary
 
 The job cleanup function automates database maintenance with:
+
 - **Zero-cost** operation (within free tiers)
 - **Configurable** retention and archiving
 - **Safe** batch processing with error handling
@@ -443,6 +461,7 @@ The job cleanup function automates database maintenance with:
 - **Flexible** manual trigger for testing
 
 For questions or issues, check logs first:
+
 ```bash
 firebase functions:log --only cleanupOldJobs
 ```
