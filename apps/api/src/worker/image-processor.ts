@@ -161,13 +161,13 @@ async function transformImage(
  */
 async function uploadToStorage(jobId: string, buffer: Buffer): Promise<string> {
   const bucket = admin.storage().bucket();
-  
+
   // Detect image format from buffer
   const metadata = await sharp(buffer).metadata();
   const format = metadata.format || "jpeg";
   const extension = format === "jpeg" ? "jpg" : format;
   const contentType = `image/${format}`;
-  
+
   const fileName = `processed/${jobId}.${extension}`;
   const file = bucket.file(fileName);
 
