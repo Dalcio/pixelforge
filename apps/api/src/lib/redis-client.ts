@@ -7,11 +7,9 @@ export const getRedisClient = (): Redis => {
     return redisClient;
   }
 
-  // Support Upstash Redis URL format or individual host/port/password
   const upstashUrl = process.env.UPSTASH_REDIS_URL;
 
   if (upstashUrl) {
-    // Use Upstash URL with TLS support
     redisClient = new Redis(upstashUrl, {
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
@@ -31,7 +29,6 @@ export const getRedisClient = (): Redis => {
       },
     });
   } else {
-    // Use individual configuration for local development
     const host = process.env.REDIS_HOST || "localhost";
     const port = parseInt(process.env.REDIS_PORT || "6379", 10);
     const password = process.env.REDIS_PASSWORD;
@@ -58,7 +55,6 @@ export const getRedisClient = (): Redis => {
     });
   }
 
-  // Connection event handlers
   redisClient.on("connect", () => {
     console.log("[API Redis] Connecting to Redis server...");
   });
@@ -89,9 +85,7 @@ export const getRedisClient = (): Redis => {
 export const isRedisHealthy = async (): Promise<boolean> => {
   try {
     if (!redisClient) {
-      // Initialize Redis client if not yet created
       getRedisClient();
-      // Give it a moment to connect
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
     if (!redisClient) {
@@ -112,7 +106,6 @@ export const disconnectRedis = async (): Promise<void> => {
       await client.quit();
     } catch (error) {
       console.error("[API Redis] Error during disconnect:", error);
-      // Force disconnect if quit fails
       client.disconnect();
     }
   }

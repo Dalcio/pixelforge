@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-// Mock firebase modules before importing
 vi.mock("firebase/app", () => ({
   initializeApp: vi.fn(() => ({ name: "test-app" })),
 }));

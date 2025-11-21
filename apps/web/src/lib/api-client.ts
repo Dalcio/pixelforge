@@ -15,13 +15,11 @@ async function handleResponse<T>(res: Response): Promise<T> {
       const json = JSON.parse(text);
       errorMessage = json.message || json.error || errorMessage;
     } catch {
-      // If not JSON, use the raw text if available
       if (text) {
         errorMessage = text;
       }
     }
 
-    // Provide user-friendly messages for specific HTTP status codes
     if (res.status === 503) {
       throw new Error(
         errorMessage.includes("Queue system")
@@ -29,7 +27,6 @@ async function handleResponse<T>(res: Response): Promise<T> {
           : "⚠️ Service temporarily unavailable. Please try again later."
       );
     } else if (res.status === 400) {
-      // Keep validation error messages as-is from backend
       throw new Error(errorMessage);
     } else if (res.status === 404) {
       throw new Error("🔍 Resource not found.");
@@ -55,7 +52,6 @@ export async function createJob(input: CreateJobInput): Promise<JobResponse> {
     });
     return handleResponse<JobResponse>(res);
   } catch (error: any) {
-    // Handle network errors (connection refused, timeout, etc.)
     if (
       error.message.includes("Failed to fetch") ||
       error.name === "TypeError"
@@ -86,7 +82,29 @@ export async function retryJob(id: string): Promise<JobResponse> {
     });
     return handleResponse<JobResponse>(res);
   } catch (error: any) {
-    // Handle network errors
+    if (
+      error.message.includes("Failed to fetch") ||
+      error.name === "TypeError"
+    ) {
+      throw new Error(
+        "🌐 Cannot connect to server. Please check your internet connection."
+      );
+    }
+    throw error;
+  }
+}
+
+export async function deleteJob(
+  id: string
+): Promise<{ success: boolean; message: string; id: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/api/jobs/${id}`, {
+      method: "DELETE",
+    });
+    return handleResponse<{ success: boolean; message: string; id: string }>(
+      res
+    );
+  } catch (error: any) {
     if (
       error.message.includes("Failed to fetch") ||
       error.name === "TypeError"

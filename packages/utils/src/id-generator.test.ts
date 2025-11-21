@@ -63,13 +63,11 @@ describe("generateId", () => {
       ids.add(generateId());
     }
 
-    // Should have unique IDs (no collisions)
     expect(ids.size).toBe(count);
   });
 
   it("should generate sortable IDs by timestamp", () => {
     const id1 = generateId();
-    // Small delay to ensure different timestamp
     const id2 = generateId();
 
     const [timestamp1] = id1.split("-");

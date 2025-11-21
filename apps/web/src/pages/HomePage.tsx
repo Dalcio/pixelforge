@@ -1,7 +1,7 @@
 import { JobSubmitForm } from "../components/JobSubmitForm";
 import { JobList } from "../components/JobList";
 import { useJobList } from "../hooks/use-job-list";
-import { retryJob } from "../lib/api-client";
+import { retryJob, deleteJob } from "../lib/api-client";
 import type { JobResponse } from "@fluximage/types";
 
 export function HomePage() {
@@ -18,6 +18,17 @@ export function HomePage() {
     }
   };
 
+  const handleDeleteJob = async (job: JobResponse) => {
+    try {
+      // Call the delete API endpoint to remove job and processed image
+      await deleteJob(job.id);
+      // No need to reload - Firestore real-time listener will update automatically
+    } catch (error: any) {
+      console.error("Failed to delete job:", error);
+      alert("Failed to delete job. Please try again.");
+    }
+  };
+
   return (
     <main className="min-h-screen mx-auto w-full max-w-3xl px-6 py-8">
       <JobSubmitForm onSuccess={reload} />
@@ -30,6 +41,7 @@ export function HomePage() {
             error={error}
             onRetry={reload}
             onRetryJob={handleRetryJob}
+            onDeleteJob={handleDeleteJob}
           />
         </div>
       )}

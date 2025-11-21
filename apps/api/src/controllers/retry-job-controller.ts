@@ -26,7 +26,6 @@ export const retryJobController = async (
 
     const jobData = jobDoc.data();
 
-    // Only allow retry for failed jobs
     if (jobData?.status !== "failed") {
       res.status(400).json({
         error: "Only failed jobs can be retried",
@@ -35,7 +34,6 @@ export const retryJobController = async (
       return;
     }
 
-    // Reset job to pending state
     await jobRef.update({
       status: "pending",
       progress: 0,
@@ -43,7 +41,6 @@ export const retryJobController = async (
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    // Re-add job to queue
     const queue = getQueue();
     await queue.add(
       "process-image",
@@ -59,7 +56,6 @@ export const retryJobController = async (
       }
     );
 
-    // Get updated job data
     const updatedJobDoc = await jobRef.get();
     const updatedData = updatedJobDoc.data();
 

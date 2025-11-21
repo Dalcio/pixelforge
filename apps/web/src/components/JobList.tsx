@@ -7,6 +7,7 @@ interface JobListProps {
   error: string | null;
   onRetry: () => void;
   onRetryJob?: (job: JobResponse) => void;
+  onDeleteJob?: (job: JobResponse) => void;
 }
 
 function EmptyState() {
@@ -107,6 +108,7 @@ export function JobList({
   error,
   onRetry,
   onRetryJob,
+  onDeleteJob,
 }: JobListProps) {
   if (loading && jobs.length === 0) {
     return (
@@ -158,7 +160,12 @@ export function JobList({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {jobs.map((job) => (
-          <JobCard key={job.id} job={job} onRetry={onRetryJob} />
+          <JobCard
+            key={job.id}
+            job={job}
+            onRetry={onRetryJob}
+            onDelete={onDeleteJob}
+          />
         ))}
       </div>
     </section>

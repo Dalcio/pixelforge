@@ -5,6 +5,7 @@ import { JobStatus } from "@fluximage/types";
 interface JobCardProps {
   job: JobResponse;
   onRetry?: (job: JobResponse) => void;
+  onDelete?: (job: JobResponse) => void;
 }
 
 function StatusBadge({ status }: { status: JobStatus }) {
@@ -163,12 +164,13 @@ function ImageModal({
   );
 }
 
-export function JobCard({ job, onRetry }: JobCardProps) {
+export function JobCard({ job, onRetry, onDelete }: JobCardProps) {
   const [showModal, setShowModal] = React.useState(false);
   const [modalImage, setModalImage] = React.useState<{
     url: string;
     alt: string;
   } | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -189,7 +191,6 @@ export function JobCard({ job, onRetry }: JobCardProps) {
   };
 
   const getUserFriendlyError = (error: string): string => {
-    // Make error messages more user-friendly
     if (error.includes("exceeds maximum allowed size")) {
       const sizeMatch = error.match(/(\d+\.\d+)MB/);
       const size = sizeMatch ? sizeMatch[1] : "Unknown";
@@ -214,7 +215,6 @@ export function JobCard({ job, onRetry }: JobCardProps) {
       return "⚠️ Cannot connect to image server.";
     }
 
-    // Return original error if no specific match
     return error;
   };
 
@@ -236,6 +236,47 @@ export function JobCard({ job, onRetry }: JobCardProps) {
             className="relative w-full aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-blue-100 to-cyan-100 hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer"
             aria-label="Preview input image"
           >
+            {onDelete &&
+              (job.status === JobStatus.COMPLETED ||
+                job.status === JobStatus.FAILED) && (
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (
+                      window.confirm(
+                        "Are you sure you want to delete this job? This will also remove any processed images."
+                      )
+                    ) {
+                      setIsDeleting(true);
+                      try {
+                        await onDelete(job);
+                      } catch (error) {
+                        console.error("Failed to delete job:", error);
+                      } finally {
+                        setIsDeleting(false);
+                      }
+                    }
+                  }}
+                  disabled={isDeleting}
+                  className="absolute top-2 right-2 z-10 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Delete job"
+                  title="Delete job"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              )}
             <img
               src={job.inputUrl}
               alt="Input thumbnail"
@@ -388,55 +429,57 @@ export function JobCard({ job, onRetry }: JobCardProps) {
 
           {/* Actions for Completed */}
           {job.outputUrl && job.status === JobStatus.COMPLETED && (
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => openModal(job.outputUrl!, "Processed image")}
-                className="px-3 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl text-xs font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all flex items-center justify-center gap-2 shadow-sm"
-                aria-label="Preview result"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => openModal(job.outputUrl!, "Processed image")}
+                  className="px-3 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl text-xs font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all flex items-center justify-center gap-2 shadow-sm"
+                  aria-label="Preview result"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-                Preview
-              </button>
-              <a
-                href={job.outputUrl}
-                download
-                className="px-3 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-xl text-xs font-semibold hover:from-teal-600 hover:to-emerald-600 transition-all flex items-center justify-center gap-2 shadow-sm"
-                aria-label="Download processed image"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                  Preview
+                </button>
+                <a
+                  href={job.outputUrl}
+                  download
+                  className="px-3 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-xl text-xs font-semibold hover:from-teal-600 hover:to-emerald-600 transition-all flex items-center justify-center gap-2 shadow-sm"
+                  aria-label="Download processed image"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                  />
-                </svg>
-                Download
-              </a>
-            </div>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                  </svg>
+                  Download
+                </a>
+              </div>
+            </>
           )}
         </div>
       </article>

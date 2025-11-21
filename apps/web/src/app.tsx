@@ -1,12 +1,9 @@
-import { useEffect } from "react";
 import { HomePage } from "./pages/HomePage";
 import { initFirebase } from "./lib/firebase";
 
-function App() {
-  useEffect(() => {
-    initFirebase();
-  }, []);
+initFirebase();
 
+function App() {
   return <HomePage />;
 }
 
