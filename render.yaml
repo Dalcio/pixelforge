@@ -1,5 +1,5 @@
 services:
-  # API Service
+  # Combined API + Worker Service
   - type: web
     name: pixelforge-api
     runtime: node
@@ -18,26 +18,8 @@ services:
         sync: false
       - key: FIREBASE_PRIVATE_KEY
         sync: false
-      - key: UPSTASH_REDIS_URL
-        sync: false
-    healthCheckPath: /health
-
-  # Worker Service
-  - type: worker
-    name: pixelforge-worker
-    runtime: node
-    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && bash scripts/build-worker.sh
-    startCommand: cd apps/worker && node dist/worker.js
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: FIREBASE_PROJECT_ID
-        sync: false
-      - key: FIREBASE_CLIENT_EMAIL
-        sync: false
-      - key: FIREBASE_PRIVATE_KEY
-        sync: false
       - key: FIREBASE_STORAGE_BUCKET
         sync: false
       - key: UPSTASH_REDIS_URL
         sync: false
+    healthCheckPath: /health
