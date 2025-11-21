@@ -7,6 +7,7 @@ import {
   Unsubscribe,
 } from "firebase/firestore";
 import type { JobResponse } from "@fluximage/types";
+import { getFirebaseApp } from "./firebase";
 
 export interface FirestoreJob {
   id: string;
@@ -52,7 +53,14 @@ export function subscribeToJobs(
   onError: (error: Error) => void
 ): Unsubscribe {
   try {
-    const db = getFirestore();
+    const app = getFirebaseApp();
+    if (!app) {
+      throw new Error(
+        "Firebase not initialized. Please check your configuration."
+      );
+    }
+
+    const db = getFirestore(app);
     const jobsRef = collection(db, "jobs");
     const q = query(jobsRef, orderBy("createdAt", "desc"));
 

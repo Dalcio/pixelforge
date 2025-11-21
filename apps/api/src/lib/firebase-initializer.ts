@@ -1,4 +1,4 @@
-import * as admin from 'firebase-admin';
+import * as admin from "firebase-admin";
 
 export const initializeFirebase = (): void => {
   if (admin.apps.length > 0) {
@@ -7,10 +7,17 @@ export const initializeFirebase = (): void => {
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const storageBucket =
+    process.env.FIREBASE_STORAGE_BUCKET ||
+    process.env.VITE_FIREBASE_STORAGE_BUCKET;
 
   if (!projectId || !clientEmail || !privateKey) {
-    throw new Error('Missing Firebase configuration');
+    throw new Error("Missing Firebase configuration");
+  }
+
+  if (!storageBucket) {
+    throw new Error("Missing FIREBASE_STORAGE_BUCKET configuration");
   }
 
   admin.initializeApp({
@@ -19,5 +26,6 @@ export const initializeFirebase = (): void => {
       clientEmail,
       privateKey,
     }),
+    storageBucket,
   });
 };
