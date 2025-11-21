@@ -1,6 +1,6 @@
 import { Job } from "bullmq";
 import { QueueJob, JobStatus } from "@fluximage/types";
-import { updateJobStatus } from "../tasks/update-status-task";
+import { updateJobStatus, updateJobProgress } from "../tasks/update-status-task";
 import { downloadImage, DownloadError } from "../tasks/download-image-task";
 import { validateImage } from "../tasks/validate-image-task";
 import { processImage, ProcessingError } from "../tasks/process-image-task";
@@ -21,10 +21,14 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
   const timestamp = new Date().toISOString();
 
   try {
+    // Start processing - 0% → 20%
     await updateJobStatus(jobId, JobStatus.PROCESSING);
+    await updateJobProgress(jobId, 0);
 
+    // Downloading - 20%
     let imageBuffer: Buffer;
     try {
+      await updateJobProgress(jobId, 20);
       imageBuffer = await downloadImage(inputUrl);
     } catch (error) {
       if (error instanceof DownloadError) {
@@ -41,8 +45,10 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
       throw error;
     }
 
+    // Validating - 40%
     let isValid: boolean;
     try {
+      await updateJobProgress(jobId, 40);
       isValid = await validateImage(imageBuffer);
     } catch (error) {
       const jobError: JobError = {
@@ -68,8 +74,10 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
       throw new Error(JSON.stringify(jobError));
     }
 
+    // Processing transformations - 60%
     let processedBuffer: Buffer;
     try {
+      await updateJobProgress(jobId, 60);
       processedBuffer = await processImage(imageBuffer, transformations);
     } catch (error) {
       if (error instanceof ProcessingError) {
@@ -86,8 +94,10 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
       throw error;
     }
 
+    // Uploading - 80%
     let outputUrl: string;
     try {
+      await updateJobProgress(jobId, 80);
       outputUrl = await uploadImage(jobId, processedBuffer);
     } catch (error) {
       const jobError: JobError = {
@@ -101,6 +111,7 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
       throw new Error(JSON.stringify(jobError));
     }
 
+    // Complete - 100%
     await completeJob(jobId, outputUrl);
   } catch (error) {
     const errorMessage =

@@ -7,6 +7,7 @@ export const completeJob = async (jobId: string, outputUrl: string): Promise<voi
 
   await db.collection('jobs').doc(jobId).update({
     status: JobStatus.COMPLETED,
+    progress: 100,
     outputUrl,
     processedAt: formatDate(new Date()),
     updatedAt: formatDate(new Date()),

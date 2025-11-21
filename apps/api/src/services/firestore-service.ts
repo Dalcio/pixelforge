@@ -13,6 +13,7 @@ export const createJobDocument = async (
     id,
     inputUrl,
     status: JobStatus.PENDING,
+    progress: 0, // Start at 0%
     transformations: transformations || null,
     createdAt: formatDate(new Date()),
     updatedAt: formatDate(new Date()),

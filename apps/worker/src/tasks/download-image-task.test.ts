@@ -13,9 +13,12 @@ describe("downloadImage", () => {
   it("should download image successfully when size is under limit", async () => {
     const mockImageData = Buffer.from("mock-image-data");
 
-    // Mock HEAD request with valid Content-Length
+    // Mock HEAD request with valid Content-Length and Content-Type
     vi.mocked(axios.head).mockResolvedValue({
-      headers: { "content-length": "1048576" }, // 1MB
+      headers: { 
+        "content-length": "1048576", // 1MB
+        "content-type": "image/jpeg"
+      },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -37,6 +40,7 @@ describe("downloadImage", () => {
     expect(result.toString()).toBe("mock-image-data");
     expect(axios.head).toHaveBeenCalledWith(url, {
       timeout: 10000,
+      validateStatus: expect.any(Function),
     });
     expect(axios.get).toHaveBeenCalledWith(url, {
       responseType: "arraybuffer",
@@ -50,7 +54,10 @@ describe("downloadImage", () => {
     const largeFileSize = 15 * 1024 * 1024; // 15MB
 
     vi.mocked(axios.head).mockResolvedValue({
-      headers: { "content-length": largeFileSize.toString() },
+      headers: { 
+        "content-length": largeFileSize.toString(),
+        "content-type": "image/jpeg"
+      },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -70,7 +77,10 @@ describe("downloadImage", () => {
     const fileSize = 10 * 1024 * 1024 + 1; // 10MB + 1 byte
 
     vi.mocked(axios.head).mockResolvedValue({
-      headers: { "content-length": fileSize.toString() },
+      headers: { 
+        "content-length": fileSize.toString(),
+        "content-type": "image/png"
+      },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -87,7 +97,10 @@ describe("downloadImage", () => {
     const mockImageData = Buffer.from("mock-image-data");
 
     vi.mocked(axios.head).mockResolvedValue({
-      headers: { "content-length": fileSize.toString() },
+      headers: { 
+        "content-length": fileSize.toString(),
+        "content-type": "image/jpeg"
+      },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -130,7 +143,7 @@ describe("downloadImage", () => {
     const mockImageData = Buffer.from("mock-image-data");
 
     vi.mocked(axios.head).mockResolvedValue({
-      headers: {}, // No Content-Length
+      headers: { "content-type": "image/jpeg" }, // No Content-Length but has Content-Type
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -151,7 +164,7 @@ describe("downloadImage", () => {
 
   it("should throw error if axios GET exceeds maxContentLength", async () => {
     vi.mocked(axios.head).mockResolvedValue({
-      headers: {},
+      headers: { "content-type": "image/jpeg" },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -171,7 +184,10 @@ describe("downloadImage", () => {
     const largeImageData = Buffer.alloc(5 * 1024 * 1024); // 5MB
 
     vi.mocked(axios.head).mockResolvedValue({
-      headers: { "content-length": (5 * 1024 * 1024).toString() },
+      headers: { 
+        "content-length": (5 * 1024 * 1024).toString(),
+        "content-type": "image/png"
+      },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -204,7 +220,7 @@ describe("downloadImage", () => {
 
   it("should throw error on timeout", async () => {
     vi.mocked(axios.head).mockResolvedValue({
-      headers: {},
+      headers: { "content-type": "image/png" },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -222,7 +238,7 @@ describe("downloadImage", () => {
 
   it("should throw error on 404", async () => {
     vi.mocked(axios.head).mockResolvedValue({
-      headers: {},
+      headers: { "content-type": "image/jpeg" },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -244,7 +260,7 @@ describe("downloadImage", () => {
 
   it("should throw error on 500", async () => {
     vi.mocked(axios.head).mockResolvedValue({
-      headers: {},
+      headers: { "content-type": "image/jpeg" },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -268,7 +284,10 @@ describe("downloadImage", () => {
     const mockImageData = Buffer.from("http-image-data");
 
     vi.mocked(axios.head).mockResolvedValue({
-      headers: { "content-length": "100" },
+      headers: { 
+        "content-length": "100",
+        "content-type": "image/jpeg"
+      },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -297,13 +316,21 @@ describe("downloadImage", () => {
   });
 
   it("should handle different image formats", async () => {
-    const formats = ["jpg", "png", "gif", "webp"];
+    const formats = [
+      { ext: "jpg", mime: "image/jpeg" },
+      { ext: "png", mime: "image/png" },
+      { ext: "gif", mime: "image/gif" },
+      { ext: "webp", mime: "image/webp" }
+    ];
 
     for (const format of formats) {
-      const mockImageData = Buffer.from(`${format}-data`);
+      const mockImageData = Buffer.from(`${format.ext}-data`);
 
       vi.mocked(axios.head).mockResolvedValue({
-        headers: { "content-length": "1000" },
+        headers: { 
+          "content-length": "1000",
+          "content-type": format.mime
+        },
         status: 200,
         statusText: "OK",
         config: {} as any,
@@ -318,7 +345,7 @@ describe("downloadImage", () => {
         config: {} as any,
       });
 
-      const url = `https://example.com/image.${format}`;
+      const url = `https://example.com/image.${format.ext}`;
       const result = await downloadImage(url);
 
       expect(result).toBeInstanceOf(Buffer);
@@ -329,7 +356,7 @@ describe("downloadImage", () => {
     const mockImageData = Buffer.from("image-data");
 
     vi.mocked(axios.head).mockResolvedValue({
-      headers: {},
+      headers: { "content-type": "image/png" },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -358,7 +385,7 @@ describe("downloadImage", () => {
     const mockImageData = Buffer.from("image-data");
 
     vi.mocked(axios.head).mockResolvedValue({
-      headers: {},
+      headers: { "content-type": "image/png" },
       status: 200,
       statusText: "OK",
       config: {} as any,
@@ -381,5 +408,258 @@ describe("downloadImage", () => {
         responseType: "arraybuffer",
       })
     );
+  });
+
+  // STRICT CONTENT-TYPE VALIDATION TESTS
+  describe("Content-Type validation", () => {
+    it("should accept image/jpeg Content-Type", async () => {
+      const mockImageData = Buffer.from("jpeg-data");
+
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "image/jpeg" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      vi.mocked(axios.get).mockResolvedValue({
+        data: mockImageData,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      });
+
+      const result = await downloadImage("https://example.com/image.jpg");
+      expect(result).toBeInstanceOf(Buffer);
+    });
+
+    it("should accept image/png Content-Type", async () => {
+      const mockImageData = Buffer.from("png-data");
+
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "image/png" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      vi.mocked(axios.get).mockResolvedValue({
+        data: mockImageData,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      });
+
+      const result = await downloadImage("https://example.com/image.png");
+      expect(result).toBeInstanceOf(Buffer);
+    });
+
+    it("should accept image/gif Content-Type", async () => {
+      const mockImageData = Buffer.from("gif-data");
+
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "image/gif" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      vi.mocked(axios.get).mockResolvedValue({
+        data: mockImageData,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      });
+
+      const result = await downloadImage("https://example.com/image.gif");
+      expect(result).toBeInstanceOf(Buffer);
+    });
+
+    it("should accept image/webp Content-Type", async () => {
+      const mockImageData = Buffer.from("webp-data");
+
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "image/webp" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      vi.mocked(axios.get).mockResolvedValue({
+        data: mockImageData,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      });
+
+      const result = await downloadImage("https://example.com/image.webp");
+      expect(result).toBeInstanceOf(Buffer);
+    });
+
+    it("should accept image/* with charset parameter", async () => {
+      const mockImageData = Buffer.from("image-data");
+
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "image/jpeg; charset=utf-8" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      vi.mocked(axios.get).mockResolvedValue({
+        data: mockImageData,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      });
+
+      const result = await downloadImage("https://example.com/image.jpg");
+      expect(result).toBeInstanceOf(Buffer);
+    });
+
+    it("should reject text/html Content-Type", async () => {
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "text/html" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      await expect(
+        downloadImage("https://example.com/page.html")
+      ).rejects.toThrow("URL does not point to an image - received Content-Type: text/html");
+      
+      expect(axios.get).not.toHaveBeenCalled();
+    });
+
+    it("should reject application/json Content-Type", async () => {
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "application/json" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      await expect(
+        downloadImage("https://example.com/data.json")
+      ).rejects.toThrow("URL does not point to an image - received Content-Type: application/json");
+      
+      expect(axios.get).not.toHaveBeenCalled();
+    });
+
+    it("should reject application/pdf Content-Type", async () => {
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "application/pdf" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      await expect(
+        downloadImage("https://example.com/document.pdf")
+      ).rejects.toThrow("URL does not point to an image - received Content-Type: application/pdf");
+      
+      expect(axios.get).not.toHaveBeenCalled();
+    });
+
+    it("should reject video/mp4 Content-Type", async () => {
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "video/mp4" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      await expect(
+        downloadImage("https://example.com/video.mp4")
+      ).rejects.toThrow("URL does not point to an image - received Content-Type: video/mp4");
+      
+      expect(axios.get).not.toHaveBeenCalled();
+    });
+
+    it("should reject text/plain Content-Type", async () => {
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "text/plain" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      await expect(
+        downloadImage("https://example.com/file.txt")
+      ).rejects.toThrow("URL does not point to an image - received Content-Type: text/plain");
+      
+      expect(axios.get).not.toHaveBeenCalled();
+    });
+
+    it("should reject missing Content-Type header", async () => {
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: {}, // No Content-Type
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      await expect(
+        downloadImage("https://example.com/unknown")
+      ).rejects.toThrow("URL does not point to an image - Content-Type header missing");
+      
+      expect(axios.get).not.toHaveBeenCalled();
+    });
+
+    it("should handle Content-Type case insensitivity", async () => {
+      const mockImageData = Buffer.from("image-data");
+
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "IMAGE/JPEG" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      vi.mocked(axios.get).mockResolvedValue({
+        data: mockImageData,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      });
+
+      const result = await downloadImage("https://example.com/image.jpg");
+      expect(result).toBeInstanceOf(Buffer);
+    });
+
+    it("should reject application/octet-stream Content-Type", async () => {
+      vi.mocked(axios.head).mockResolvedValue({
+        headers: { "content-type": "application/octet-stream" },
+        status: 200,
+        statusText: "OK",
+        config: {} as any,
+        data: undefined,
+      });
+
+      await expect(
+        downloadImage("https://example.com/binary")
+      ).rejects.toThrow("URL does not point to an image - received Content-Type: application/octet-stream");
+      
+      expect(axios.get).not.toHaveBeenCalled();
+    });
   });
 });

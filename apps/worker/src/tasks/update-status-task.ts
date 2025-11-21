@@ -10,3 +10,12 @@ export const updateJobStatus = async (jobId: string, status: JobStatus): Promise
     updatedAt: formatDate(new Date()),
   });
 };
+
+export const updateJobProgress = async (jobId: string, progress: number): Promise<void> => {
+  const db = getFirestore();
+
+  await db.collection('jobs').doc(jobId).update({
+    progress,
+    updatedAt: formatDate(new Date()),
+  });
+};

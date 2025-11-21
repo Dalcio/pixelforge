@@ -22,6 +22,7 @@ export interface Job {
   inputUrl: string;
   outputUrl?: string;
   status: JobStatus;
+  progress: number; // 0-100
   error?: string;
   transformations?: TransformationOptions;
   createdAt: Date;
@@ -39,6 +40,7 @@ export interface JobResponse {
   status: JobStatus;
   inputUrl: string;
   outputUrl?: string;
+  progress: number; // 0-100
   error?: string;
   transformations?: TransformationOptions;
   createdAt: string;

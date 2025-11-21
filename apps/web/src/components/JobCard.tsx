@@ -318,12 +318,28 @@ export function JobCard({ job }: JobCardProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-blue-600">Processing</span>
-                <span className="text-blue-500">~70%</span>
+                <span className="text-blue-500">{job.progress}%</span>
               </div>
               <div className="h-1.5 bg-blue-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 rounded-full animate-pulse"
-                  style={{ width: "70%" }}
+                  className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${job.progress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Pending Progress Bar */}
+          {job.status === JobStatus.PENDING && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-yellow-600">Queued</span>
+                <span className="text-yellow-500">{job.progress}%</span>
+              </div>
+              <div className="h-1.5 bg-yellow-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${job.progress}%` }}
                 />
               </div>
             </div>
@@ -339,13 +355,6 @@ export function JobCard({ job }: JobCardProps) {
               <p className="text-xs text-red-500 line-clamp-2">
                 {getUserFriendlyError(job.error)}
               </p>
-            </div>
-          )}
-
-          {/* Pending Message */}
-          {job.status === JobStatus.PENDING && (
-            <div className="p-3 bg-yellow-50 border border-yellow-100 rounded-xl text-center">
-              <p className="text-xs font-semibold text-yellow-600">Queued</p>
             </div>
           )}
 

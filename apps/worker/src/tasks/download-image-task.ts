@@ -15,12 +15,41 @@ export class DownloadError extends Error {
 
 export const downloadImage = async (url: string): Promise<Buffer> => {
   try {
-    // First, check Content-Length with HEAD request to avoid downloading large files
+    // First, check Content-Type with HEAD request - STRICT validation
     try {
       const headResponse = await axios.head(url, {
         timeout: 10000,
+        validateStatus: (status) => status < 500, // Accept all client errors to handle them properly
       });
 
+      // Check if HEAD request was successful
+      if (headResponse.status >= 400) {
+        throw new DownloadError(
+          `URL is not accessible (HTTP ${headResponse.status})`,
+          url
+        );
+      }
+
+      // STRICT Content-Type validation - must be present and must be image/*
+      const contentType = headResponse.headers["content-type"];
+      if (!contentType) {
+        throw new DownloadError(
+          "URL does not point to an image - Content-Type header missing",
+          url
+        );
+      }
+
+      // Normalize content-type (remove charset and other parameters)
+      const normalizedContentType = contentType.split(";")[0].trim().toLowerCase();
+      
+      if (!normalizedContentType.startsWith("image/")) {
+        throw new DownloadError(
+          `URL does not point to an image - received Content-Type: ${normalizedContentType}`,
+          url
+        );
+      }
+
+      // Check file size
       const contentLength = headResponse.headers["content-length"];
       if (contentLength) {
         const fileSize = parseInt(contentLength, 10);
@@ -35,19 +64,11 @@ export const downloadImage = async (url: string): Promise<Buffer> => {
           );
         }
       }
-
-      const contentType = headResponse.headers["content-type"];
-      if (contentType && !contentType.startsWith("image/")) {
-        throw new DownloadError(
-          `Invalid content type: ${contentType}. Expected image/* type.`,
-          url
-        );
-      }
     } catch (error) {
       if (error instanceof DownloadError) {
         throw error;
       }
-      // Continue with GET request for other errors (e.g., HEAD not supported)
+      // For servers that don't support HEAD, we'll try GET but validate Content-Type immediately
     }
 
     const response = await axios.get(url, {

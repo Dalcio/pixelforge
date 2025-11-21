@@ -66,17 +66,56 @@ service cloud.firestore {
 
 ### Firestore Indexes
 
-Create composite index for query optimization:
+FluxImage requires a composite index for efficient querying. We provide a `firestore.indexes.json` file at the project root.
 
-1. Go to **Indexes** tab
+**Option 1: Deploy via Firebase CLI (Recommended)**
+
+1. Install Firebase CLI:
+```bash
+npm install -g firebase-tools
+```
+
+2. Login to Firebase:
+```bash
+firebase login
+```
+
+3. Initialize Firebase in your project (if not already done):
+```bash
+firebase init
+```
+   - Select "Firestore" and "Storage"
+   - Use existing project
+   - Accept default files (firestore.rules, firestore.indexes.json)
+
+4. Deploy indexes:
+```bash
+firebase deploy --only firestore:indexes
+```
+
+This will create all required indexes automatically.
+
+**Option 2: Manual Index Creation**
+
+If you prefer manual creation:
+
+1. Go to **Firestore** → **Indexes** tab in Firebase Console
 2. Click **Add index**
-3. Collection: `jobs`
-4. Fields:
-   - `createdAt` - Descending
-   - `status` - Ascending (optional)
-5. Click **Create**
+3. Configuration:
+   - Collection: `jobs`
+   - Field: `createdAt` - **Descending**
+4. Click **Create**
 
-Or wait for Firestore to suggest indexes based on queries.
+**Why this index?**
+
+The index on `createdAt DESC` is required because:
+- The API queries jobs ordered by creation date (newest first)
+- Without this index, Firestore will show warnings and may reject queries
+- This ensures fast retrieval of recent jobs
+
+**Verification**
+
+After deployment, check for Firestore warnings in your API logs. You should see no index-related errors when fetching jobs.
 
 ## Step 3: Enable Storage
 
