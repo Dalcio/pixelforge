@@ -188,18 +188,24 @@ importers:
 
   packages/types:
     devDependencies:
+      '@types/node':
+        specifier: ^20.10.6
+        version: 20.19.25
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
 
   packages/utils:
     devDependencies:
+      '@types/node':
+        specifier: ^20.10.6
+        version: 20.19.25
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
       vitest:
         specifier: ^1.1.0
-        version: 1.6.1(@types/node@22.19.1)(@vitest/ui@1.6.1)(jsdom@27.2.0)
+        version: 1.6.1(@types/node@20.19.25)(@vitest/ui@1.6.1)(jsdom@27.2.0)
 
 packages:
 
