@@ -319,12 +319,26 @@ After deployment, update:
 
 ### **Production URLs**
 
-- **API**: `https://pixelforge-api.onrender.com`
+- **API**: `https://pixelforge-smp3.onrender.com`
+- **API Docs**: `https://pixelforge-smp3.onrender.com/docs`
 - **Frontend**: `https://pixelforge.vercel.app`
 
 ---
 
 ## 📚 API Documentation
+
+### **Interactive API Documentation (Swagger)**
+
+Access the full interactive API documentation with request/response examples:
+
+- **Production**: [https://pixelforge-smp3.onrender.com/docs](https://pixelforge-smp3.onrender.com/docs)
+- **Local**: [http://localhost:3000/docs](http://localhost:3000/docs)
+
+The Swagger UI provides:
+- 📋 Complete endpoint documentation
+- 🧪 Interactive API testing ("Try it out" feature)
+- 📊 Request/response schemas
+- 💡 Example payloads for each endpoint
 
 ### **Base URL**: `http://localhost:3000/api`
 
