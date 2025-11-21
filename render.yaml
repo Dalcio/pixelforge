@@ -1,0 +1,43 @@
+services:
+  # API Service
+  - type: web
+    name: pixelforge-api
+    runtime: node
+    buildCommand: cd apps/api && npm install && npm run build
+    startCommand: cd apps/api && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+    healthCheckPath: /health
+
+  # Worker Service
+  - type: worker
+    name: pixelforge-worker
+    runtime: node
+    buildCommand: cd apps/worker && npm install && npm run build
+    startCommand: cd apps/worker && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false

@@ -407,7 +407,6 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
           {/* Image Preview */}
           {url && (
             <div className="space-y-3">
-              \n{" "}
               <label className="block text-sm font-bold text-[hsl(var(--color-text))]">
                 Preview
               </label>

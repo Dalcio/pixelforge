@@ -7,28 +7,56 @@ export const getRedisClient = (): Redis => {
     return redisClient;
   }
 
-  const host = process.env.REDIS_HOST || "localhost";
-  const port = parseInt(process.env.REDIS_PORT || "6379", 10);
-  const password = process.env.REDIS_PASSWORD;
+  // Support Upstash Redis URL format or individual host/port/password
+  const upstashUrl = process.env.UPSTASH_REDIS_URL;
 
-  redisClient = new Redis({
-    host,
-    port,
-    password: password || undefined,
-    maxRetriesPerRequest: null,
-    retryStrategy(times: number) {
-      const delay = Math.min(times * 50, 2000);
-      console.log(`[API Redis] Retry attempt ${times}, waiting ${delay}ms...`);
-      return delay;
-    },
-    reconnectOnError(err: Error) {
-      const targetError = "READONLY";
-      if (err.message.includes(targetError)) {
-        return true;
-      }
-      return false;
-    },
-  });
+  if (upstashUrl) {
+    // Use Upstash URL with TLS support
+    redisClient = new Redis(upstashUrl, {
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+      retryStrategy(times: number) {
+        const delay = Math.min(times * 50, 2000);
+        console.log(
+          `[API Redis] Retry attempt ${times}, waiting ${delay}ms...`
+        );
+        return delay;
+      },
+      reconnectOnError(err: Error) {
+        const targetError = "READONLY";
+        if (err.message.includes(targetError)) {
+          return true;
+        }
+        return false;
+      },
+    });
+  } else {
+    // Use individual configuration for local development
+    const host = process.env.REDIS_HOST || "localhost";
+    const port = parseInt(process.env.REDIS_PORT || "6379", 10);
+    const password = process.env.REDIS_PASSWORD;
+
+    redisClient = new Redis({
+      host,
+      port,
+      password: password || undefined,
+      maxRetriesPerRequest: null,
+      retryStrategy(times: number) {
+        const delay = Math.min(times * 50, 2000);
+        console.log(
+          `[API Redis] Retry attempt ${times}, waiting ${delay}ms...`
+        );
+        return delay;
+      },
+      reconnectOnError(err: Error) {
+        const targetError = "READONLY";
+        if (err.message.includes(targetError)) {
+          return true;
+        }
+        return false;
+      },
+    });
+  }
 
   // Connection event handlers
   redisClient.on("connect", () => {
