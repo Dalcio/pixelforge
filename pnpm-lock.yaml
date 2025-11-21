@@ -23,6 +23,9 @@ importers:
       '@fluximage/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      axios:
+        specifier: ^1.6.5
+        version: 1.13.2
       bullmq:
         specifier: ^5.1.0
         version: 5.63.2
@@ -47,6 +50,9 @@ importers:
       joi:
         specifier: ^17.11.0
         version: 17.13.3
+      sharp:
+        specifier: ^0.33.1
+        version: 0.33.5
     devDependencies:
       '@types/cors':
         specifier: ^2.8.17
@@ -4176,7 +4182,7 @@ snapshots:
       pathe: 1.1.2
       picocolors: 1.1.1
       sirv: 2.0.4
-      vitest: 1.6.1(@types/node@20.19.25)(@vitest/ui@1.6.1)(jsdom@27.2.0)
+      vitest: 1.6.1(@types/node@22.19.1)(@vitest/ui@1.6.1)(jsdom@27.2.0)
 
   '@vitest/utils@1.6.1':
     dependencies:

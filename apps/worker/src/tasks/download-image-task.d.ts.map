@@ -1,0 +1,1 @@
+{"version":3,"file":"download-image-task.d.ts","sourceRoot":"","sources":["download-image-task.ts"],"names":[],"mappings":"AAIA,qBAAa,aAAc,SAAQ,KAAK;aAGpB,GAAG,EAAE,MAAM;aACX,KAAK,CAAC,EAAE,KAAK;gBAF7B,OAAO,EAAE,MAAM,EACC,GAAG,EAAE,MAAM,EACX,KAAK,CAAC,EAAE,KAAK,YAAA;CAKhC;AAED,eAAO,MAAM,aAAa,GAAU,KAAK,MAAM,KAAG,OAAO,CAAC,MAAM,CA2H/D,CAAC"}

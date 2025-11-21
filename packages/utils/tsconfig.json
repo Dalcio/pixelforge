@@ -22,7 +22,9 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src/**/*"

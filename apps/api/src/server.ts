@@ -3,6 +3,7 @@ import { createApp } from "./app";
 import { initializeFirebase } from "./lib/firebase-initializer";
 import { disconnectRedis } from "./lib/redis-client";
 import { Server } from "http";
+import { Worker } from "bullmq";
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ process.on("uncaughtException", (error: Error) => {
   console.error("\n❌ [FATAL] Uncaught Exception:");
   console.error("Error:", error.message);
   console.error("Stack:", error.stack);
-  console.error("\nShutting down API server due to uncaught exception...");
+  console.error("\nShutting down server due to uncaught exception...");
 
   // Give time for logs to flush
   setTimeout(() => {
@@ -30,7 +31,7 @@ process.on(
       console.error("Stack:", reason.stack);
     }
 
-    console.error("\nShutting down API server due to unhandled rejection...");
+    console.error("\nShutting down server due to unhandled rejection...");
 
     // Give time for logs to flush
     setTimeout(() => {
@@ -48,9 +49,70 @@ const server: Server = app.listen(port, () => {
   console.log(`✓ API server running on port ${port}`);
 });
 
+// Start Worker alongside API
+let worker: Worker | null = null;
+
+async function startWorker() {
+  try {
+    // Import worker modules from compiled dist
+    const { Worker } = await import("bullmq");
+    const workerRedisModule = await import(
+      "../../worker/dist/lib/redis-client.js"
+    );
+    const processImageModule = await import(
+      "../../worker/dist/processors/image-processor.js"
+    );
+
+    const connection = workerRedisModule.getRedisClient();
+    const processImageJob = processImageModule.processImageJob;
+
+    worker = new Worker("image-processing", processImageJob, {
+      connection,
+      concurrency: 5,
+    });
+
+    worker.on("completed", (job) => {
+      console.log(`[Worker] ✓ Job ${job.id} completed successfully`);
+    });
+
+    worker.on("failed", (job, err) => {
+      console.error(`[Worker] ✗ Job ${job?.id} failed:`, err.message);
+    });
+
+    worker.on("error", (err) => {
+      console.error("[Worker] Worker error:", err.message);
+    });
+
+    worker.on("active", (job) => {
+      console.log(`[Worker] → Processing job ${job.id}...`);
+    });
+
+    console.log("✓ Worker started and waiting for jobs...");
+  } catch (error) {
+    console.error("✗ Failed to start worker:", error);
+    // Don't exit - API can still work without worker
+  }
+}
+
+// Start worker immediately
+startWorker();
+
+// Start worker immediately
+startWorker();
+
 // Graceful shutdown handlers
 process.on("SIGTERM", async () => {
-  console.log("\n⚠ SIGTERM received, closing API server gracefully...");
+  console.log("\n⚠ SIGTERM received, closing server gracefully...");
+
+  // Close worker first
+  if (worker) {
+    try {
+      await worker.close();
+      console.log("✓ Worker closed successfully");
+    } catch (err) {
+      console.error("✗ Error closing worker:", err);
+    }
+  }
 
   server.close(async (err) => {
     if (err) {
@@ -74,7 +136,17 @@ process.on("SIGTERM", async () => {
 });
 
 process.on("SIGINT", async () => {
-  console.log("\n⚠ SIGINT received (Ctrl+C), closing API server gracefully...");
+  console.log("\n⚠ SIGINT received (Ctrl+C), closing server gracefully...");
+
+  // Close worker first
+  if (worker) {
+    try {
+      await worker.close();
+      console.log("✓ Worker closed successfully");
+    } catch (err) {
+      console.error("✗ Error closing worker:", err);
+    }
+  }
 
   server.close(async (err) => {
     if (err) {
