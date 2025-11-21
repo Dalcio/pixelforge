@@ -3,8 +3,8 @@ services:
   - type: web
     name: pixelforge-api
     runtime: node
-    buildCommand: cd apps/api && npm install && npm run build
-    startCommand: cd apps/api && npm start
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @fluximage/types build && pnpm --filter @fluximage/utils build && pnpm --filter @fluximage/api build
+    startCommand: cd apps/api && node dist/server.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -26,8 +26,8 @@ services:
   - type: worker
     name: pixelforge-worker
     runtime: node
-    buildCommand: cd apps/worker && npm install && npm run build
-    startCommand: cd apps/worker && npm start
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @fluximage/types build && pnpm --filter @fluximage/utils build && pnpm --filter @fluximage/worker build
+    startCommand: cd apps/worker && node dist/worker.js
     envVars:
       - key: NODE_ENV
         value: production
