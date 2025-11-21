@@ -89,6 +89,12 @@ export const getRedisClient = (): Redis => {
 export const isRedisHealthy = async (): Promise<boolean> => {
   try {
     if (!redisClient) {
+      // Initialize Redis client if not yet created
+      getRedisClient();
+      // Give it a moment to connect
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    if (!redisClient) {
       return false;
     }
     await redisClient.ping();

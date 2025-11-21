@@ -54,17 +54,11 @@ let worker: Worker | null = null;
 
 async function startWorker() {
   try {
-    // Import worker modules from compiled dist
     const { Worker } = await import("bullmq");
-    const workerRedisModule = await import(
-      "../../worker/dist/lib/redis-client.js"
-    );
-    const processImageModule = await import(
-      "../../worker/dist/processors/image-processor.js"
-    );
+    const { getRedisClient } = await import("./lib/redis-client");
+    const { processImageJob } = await import("./worker/image-processor");
 
-    const connection = workerRedisModule.getRedisClient();
-    const processImageJob = processImageModule.processImageJob;
+    const connection = getRedisClient();
 
     worker = new Worker("image-processing", processImageJob, {
       connection,
@@ -93,9 +87,6 @@ async function startWorker() {
     // Don't exit - API can still work without worker
   }
 }
-
-// Start worker immediately
-startWorker();
 
 // Start worker immediately
 startWorker();
