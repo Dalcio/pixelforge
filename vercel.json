@@ -1,7 +1,7 @@
 {
-  "buildCommand": "cd apps/web && pnpm install && pnpm build",
+  "buildCommand": "pnpm install && pnpm --filter @fluximage/web build",
   "outputDirectory": "apps/web/dist",
-  "installCommand": "npm install -g pnpm@8",
+  "installCommand": "npm install -g pnpm@8 && pnpm install",
   "framework": "vite",
   "headers": [
     {
