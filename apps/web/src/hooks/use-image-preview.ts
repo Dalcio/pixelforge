@@ -32,8 +32,9 @@ export function useImagePreview(): UseImagePreviewReturn {
       });
 
       setPreviewUrl(url);
-    } catch (err: any) {
-      setError(err.message || "Invalid image URL");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Invalid image URL";
+      setError(errorMessage);
       setPreviewUrl(null);
     } finally {
       setIsLoading(false);

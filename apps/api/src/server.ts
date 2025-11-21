@@ -7,12 +7,34 @@ import { Worker } from "bullmq";
 
 dotenv.config();
 
+// Validate required environment variables
+const requiredEnvVars = [
+  "FIREBASE_PROJECT_ID",
+  "FIREBASE_CLIENT_EMAIL",
+  "FIREBASE_PRIVATE_KEY",
+  "FIREBASE_STORAGE_BUCKET",
+];
+
+const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  process.stderr.write(
+    `\n❌ [FATAL] Missing required environment variables:\n${missingVars.map((v) => `  - ${v}`).join("\n")}\n\nPlease check your .env file and try again.\n\n`
+  );
+  process.exit(1);
+}
+
+if (!process.env.UPSTASH_REDIS_URL && !process.env.REDIS_HOST) {
+  process.stderr.write(
+    "\n⚠️  [WARNING] No Redis configuration found. Either UPSTASH_REDIS_URL or REDIS_HOST must be set.\n\n"
+  );
+}
+
 // Global exception handlers - must be set up before any async code
 process.on("uncaughtException", (error: Error) => {
-  console.error("\n❌ [FATAL] Uncaught Exception:");
-  console.error("Error:", error.message);
-  console.error("Stack:", error.stack);
-  console.error("\nShutting down server due to uncaught exception...");
+  process.stderr.write(
+    `\n❌ [FATAL] Uncaught Exception:\nError: ${error.message}\nStack: ${error.stack}\n\nShutting down server due to uncaught exception...\n`
+  );
 
   // Give time for logs to flush
   setTimeout(() => {
@@ -23,15 +45,12 @@ process.on("uncaughtException", (error: Error) => {
 process.on(
   "unhandledRejection",
   (reason: unknown, promise: Promise<unknown>) => {
-    console.error("\n❌ [FATAL] Unhandled Promise Rejection:");
-    console.error("Promise:", promise);
-    console.error("Reason:", reason);
-
-    if (reason instanceof Error) {
-      console.error("Stack:", reason.stack);
-    }
-
-    console.error("\nShutting down server due to unhandled rejection...");
+    const errorMessage = reason instanceof Error ? reason.message : String(reason);
+    const errorStack = reason instanceof Error ? reason.stack : "";
+    
+    process.stderr.write(
+      `\n❌ [FATAL] Unhandled Promise Rejection:\nReason: ${errorMessage}\n${errorStack ? `Stack: ${errorStack}\n` : ""}\nShutting down server due to unhandled rejection...\n`
+    );
 
     // Give time for logs to flush
     setTimeout(() => {
@@ -46,7 +65,7 @@ const app = createApp();
 const port = process.env.PORT || 3000;
 
 const server: Server = app.listen(port, () => {
-  console.log(`✓ API server running on port ${port}`);
+  process.stdout.write(`✓ API server running on port ${port}\n`);
 });
 
 // Start Worker alongside API
@@ -66,24 +85,25 @@ async function startWorker() {
     });
 
     worker.on("completed", (job) => {
-      console.log(`[Worker] ✓ Job ${job.id} completed successfully`);
+      process.stdout.write(`[Worker] ✓ Job ${job.id} completed successfully\n`);
     });
 
     worker.on("failed", (job, err) => {
-      console.error(`[Worker] ✗ Job ${job?.id} failed:`, err.message);
+      process.stderr.write(`[Worker] ✗ Job ${job?.id} failed: ${err.message}\n`);
     });
 
     worker.on("error", (err) => {
-      console.error("[Worker] Worker error:", err.message);
+      process.stderr.write(`[Worker] Worker error: ${err.message}\n`);
     });
 
     worker.on("active", (job) => {
-      console.log(`[Worker] → Processing job ${job.id}...`);
+      process.stdout.write(`[Worker] → Processing job ${job.id}...\n`);
     });
 
-    console.log("✓ Worker started and waiting for jobs...");
+    process.stdout.write("✓ Worker started and waiting for jobs...\n");
   } catch (error) {
-    console.error("✗ Failed to start worker:", error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    process.stderr.write(`✗ Failed to start worker: ${errorMsg}\n`);
     // Don't exit - API can still work without worker
   }
 }
@@ -93,68 +113,72 @@ startWorker();
 
 // Graceful shutdown handlers
 process.on("SIGTERM", async () => {
-  console.log("\n⚠ SIGTERM received, closing server gracefully...");
+  process.stdout.write("\n⚠ SIGTERM received, closing server gracefully...\n");
 
   // Close worker first
   if (worker) {
     try {
       await worker.close();
-      console.log("✓ Worker closed successfully");
+      process.stdout.write("✓ Worker closed successfully\n");
     } catch (err) {
-      console.error("✗ Error closing worker:", err);
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      process.stderr.write(`✗ Error closing worker: ${errorMsg}\n`);
     }
   }
 
   server.close(async (err) => {
     if (err) {
-      console.error("✗ Error closing server:", err);
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      process.stderr.write(`✗ Error closing server: ${errorMsg}\n`);
       await disconnectRedis();
       process.exit(1);
     }
 
-    console.log("✓ Server closed successfully");
+    process.stdout.write("✓ Server closed successfully\n");
     await disconnectRedis();
-    console.log("✓ Redis connection closed");
+    process.stdout.write("✓ Redis connection closed\n");
     process.exit(0);
   });
 
   // Force close after 10 seconds
   setTimeout(async () => {
-    console.error("⚠ Forcefully shutting down after timeout");
+    process.stderr.write("⚠ Forcefully shutting down after timeout\n");
     await disconnectRedis();
     process.exit(1);
   }, 10000);
 });
 
 process.on("SIGINT", async () => {
-  console.log("\n⚠ SIGINT received (Ctrl+C), closing server gracefully...");
+  process.stdout.write("\n⚠ SIGINT received (Ctrl+C), closing server gracefully...\n");
 
   // Close worker first
   if (worker) {
     try {
       await worker.close();
-      console.log("✓ Worker closed successfully");
+      process.stdout.write("✓ Worker closed successfully\n");
     } catch (err) {
-      console.error("✗ Error closing worker:", err);
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      process.stderr.write(`✗ Error closing worker: ${errorMsg}\n`);
     }
   }
 
   server.close(async (err) => {
     if (err) {
-      console.error("✗ Error closing server:", err);
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      process.stderr.write(`✗ Error closing server: ${errorMsg}\n`);
       await disconnectRedis();
       process.exit(1);
     }
 
-    console.log("✓ Server closed successfully");
+    process.stdout.write("✓ Server closed successfully\n");
     await disconnectRedis();
-    console.log("✓ Redis connection closed");
+    process.stdout.write("✓ Redis connection closed\n");
     process.exit(0);
   });
 
   // Force close after 10 seconds
   setTimeout(async () => {
-    console.error("⚠ Forcefully shutting down after timeout");
+    process.stderr.write("⚠ Forcefully shutting down after timeout\n");
     await disconnectRedis();
     process.exit(1);
   }, 10000);

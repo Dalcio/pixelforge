@@ -102,7 +102,7 @@ export function JobSubmitForm({ onSuccess }: JobSubmitFormProps) {
             id="submit-form-title"
             className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2"
           >
-            Transform yor Image
+            Transform your Image
           </h2>
           <p className="text-[hsl(var(--color-text-secondary))]">
             Paste your image URL below

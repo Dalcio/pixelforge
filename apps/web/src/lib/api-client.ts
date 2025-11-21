@@ -51,10 +51,10 @@ export async function createJob(input: CreateJobInput): Promise<JobResponse> {
       body: JSON.stringify(input),
     });
     return handleResponse<JobResponse>(res);
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (
-      error.message.includes("Failed to fetch") ||
-      error.name === "TypeError"
+      error instanceof Error &&
+      (error.message.includes("Failed to fetch") || error.name === "TypeError")
     ) {
       throw new Error(
         "🌐 Cannot connect to server. Please check your internet connection."
@@ -81,10 +81,10 @@ export async function retryJob(id: string): Promise<JobResponse> {
       headers: { "Content-Type": "application/json" },
     });
     return handleResponse<JobResponse>(res);
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (
-      error.message.includes("Failed to fetch") ||
-      error.name === "TypeError"
+      error instanceof Error &&
+      (error.message.includes("Failed to fetch") || error.name === "TypeError")
     ) {
       throw new Error(
         "🌐 Cannot connect to server. Please check your internet connection."
@@ -104,10 +104,10 @@ export async function deleteJob(
     return handleResponse<{ success: boolean; message: string; id: string }>(
       res
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (
-      error.message.includes("Failed to fetch") ||
-      error.name === "TypeError"
+      error instanceof Error &&
+      (error.message.includes("Failed to fetch") || error.name === "TypeError")
     ) {
       throw new Error(
         "🌐 Cannot connect to server. Please check your internet connection."

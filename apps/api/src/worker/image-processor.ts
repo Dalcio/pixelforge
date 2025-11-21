@@ -48,11 +48,11 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
       updatedAt: new Date(),
     });
 
-    console.log(`[Worker] ✓ Job ${jobId} completed successfully`);
+    process.stdout.write(`[Worker] ✓ Job ${jobId} completed successfully\n`);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
-    console.error(`[Worker] ✗ Job ${jobId} failed:`, errorMessage);
+    process.stderr.write(`[Worker] ✗ Job ${jobId} failed: ${errorMessage}\n`);
 
     await updateJobInFirestore(jobId, {
       status: JobStatus.FAILED,

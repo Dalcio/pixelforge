@@ -15,8 +15,8 @@ export const getRedisClient = (): Redis => {
       enableReadyCheck: false,
       retryStrategy(times: number) {
         const delay = Math.min(times * 50, 2000);
-        console.log(
-          `[API Redis] Retry attempt ${times}, waiting ${delay}ms...`
+        process.stdout.write(
+          `[API Redis] Retry attempt ${times}, waiting ${delay}ms...\n`
         );
         return delay;
       },
@@ -40,8 +40,8 @@ export const getRedisClient = (): Redis => {
       maxRetriesPerRequest: null,
       retryStrategy(times: number) {
         const delay = Math.min(times * 50, 2000);
-        console.log(
-          `[API Redis] Retry attempt ${times}, waiting ${delay}ms...`
+        process.stdout.write(
+          `[API Redis] Retry attempt ${times}, waiting ${delay}ms...\n`
         );
         return delay;
       },
@@ -56,27 +56,27 @@ export const getRedisClient = (): Redis => {
   }
 
   redisClient.on("connect", () => {
-    console.log("[API Redis] Connecting to Redis server...");
+    process.stdout.write("[API Redis] Connecting to Redis server...\n");
   });
 
   redisClient.on("ready", () => {
-    console.log("[API Redis] ✓ Connected and ready");
+    process.stdout.write("[API Redis] ✓ Connected and ready\n");
   });
 
   redisClient.on("error", (err: Error) => {
-    console.error("[API Redis] ✗ Connection error:", err.message);
+    process.stderr.write(`[API Redis] ✗ Connection error: ${err.message}\n`);
   });
 
   redisClient.on("close", () => {
-    console.warn("[API Redis] Connection closed");
+    process.stderr.write("[API Redis] Connection closed\n");
   });
 
   redisClient.on("reconnecting", (delay: number) => {
-    console.log(`[API Redis] Reconnecting in ${delay}ms...`);
+    process.stdout.write(`[API Redis] Reconnecting in ${delay}ms...\n`);
   });
 
   redisClient.on("end", () => {
-    console.warn("[API Redis] Connection ended");
+    process.stderr.write("[API Redis] Connection ended\n");
   });
 
   return redisClient;
@@ -105,7 +105,8 @@ export const disconnectRedis = async (): Promise<void> => {
     try {
       await client.quit();
     } catch (error) {
-      console.error("[API Redis] Error during disconnect:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      process.stderr.write(`[API Redis] Error during disconnect: ${errorMsg}\n`);
       client.disconnect();
     }
   }

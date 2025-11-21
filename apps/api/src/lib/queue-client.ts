@@ -16,7 +16,7 @@ export const getQueue = (): Queue => {
 
   // Queue event handlers
   queue.on("error", (err: Error) => {
-    console.error("[API Queue] Error:", err.message);
+    process.stderr.write(`[API Queue] Error: ${err.message}\n`);
   });
 
   return queue;

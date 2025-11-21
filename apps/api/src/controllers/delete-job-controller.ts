@@ -54,10 +54,10 @@ export const deleteJobController = async (
             await file.delete();
           }
         }
-      } catch (error: any) {
-        console.warn(
-          `[API] Failed to delete processed image for job ${id}:`,
-          error.message
+      } catch (error: unknown) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        process.stderr.write(
+          `[API] Failed to delete processed image for job ${id}: ${errorMsg}\n`
         );
       }
     }
@@ -69,11 +69,12 @@ export const deleteJobController = async (
       message: "Job and associated files deleted successfully",
       id,
     });
-  } catch (error: any) {
-    console.error("[API] Error deleting job:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    process.stderr.write(`[API] Error deleting job: ${errorMessage}\n`);
     res.status(500).json({
       error: "Failed to delete job",
-      message: error.message,
+      message: errorMessage,
     });
   }
 };

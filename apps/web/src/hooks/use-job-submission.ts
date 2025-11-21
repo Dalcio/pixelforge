@@ -32,9 +32,9 @@ export function useJobSubmission(
           onSuccess(job);
         }
         return job;
-      } catch (err: any) {
+      } catch (err: unknown) {
         let errorMessage =
-          err.message || "Failed to submit job. Please try again.";
+          err instanceof Error ? err.message : "Failed to submit job. Please try again.";
 
         // Enhance specific error messages for better UX
         if (errorMessage.includes("exceeds maximum allowed size")) {

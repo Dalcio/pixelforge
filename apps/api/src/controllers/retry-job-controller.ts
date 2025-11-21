@@ -63,13 +63,14 @@ export const retryJobController = async (
       id: updatedJobDoc.id,
       ...updatedData,
       createdAt: updatedData?.createdAt?.toDate().toISOString(),
-      updatedAt: updatedData?.updatedAt?.toDate().toISOString(),
+      processedAt: updatedData?.processedAt?.toDate().toISOString(),
     });
-  } catch (error: any) {
-    console.error("[API] Error retrying job:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    process.stderr.write(`[API] Error retrying job: ${errorMessage}\n`);
     res.status(500).json({
       error: "Failed to retry job",
-      message: error.message,
+      message: errorMessage,
     });
   }
 };

@@ -12,7 +12,7 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ): void => {
-  console.error("Error:", err);
+  process.stderr.write(`Error: ${err.message || "Internal server error"}\n`);
 
   // Handle body-parser/express.json payload too large error
   if (
