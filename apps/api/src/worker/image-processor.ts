@@ -3,7 +3,7 @@ import { QueueJob, JobStatus } from "@fluximage/types";
 import axios from "axios";
 import sharp from "sharp";
 import { getFirestore } from "../lib/firestore-client";
-import { getStorage } from "firebase-admin/storage";
+import * as admin from "firebase-admin";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -16,7 +16,10 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
 
   try {
     // Update status to processing
-    await updateJobInFirestore(jobId, { status: JobStatus.PROCESSING, progress: 0 });
+    await updateJobInFirestore(jobId, {
+      status: JobStatus.PROCESSING,
+      progress: 0,
+    });
 
     // Step 1: Download image (20%)
     await updateJobInFirestore(jobId, { progress: 20 });
@@ -47,7 +50,8 @@ export const processImageJob = async (job: Job<QueueJob>): Promise<void> => {
 
     console.log(`[Worker] ✓ Job ${jobId} completed successfully`);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     console.error(`[Worker] ✗ Job ${jobId} failed:`, errorMessage);
 
     await updateJobInFirestore(jobId, {
@@ -141,7 +145,7 @@ async function transformImage(
 
   // Quality
   const quality = transformations.quality || 80;
-  
+
   // Always output as JPEG for consistency
   pipeline = pipeline.jpeg({ quality });
 
@@ -152,8 +156,7 @@ async function transformImage(
  * Upload processed image to Firebase Storage
  */
 async function uploadToStorage(jobId: string, buffer: Buffer): Promise<string> {
-  const storage = getStorage();
-  const bucket = storage.bucket();
+  const bucket = admin.storage().bucket();
   const fileName = `processed/${jobId}.jpg`;
   const file = bucket.file(fileName);
 
@@ -182,8 +185,11 @@ async function updateJobInFirestore(
   }>
 ): Promise<void> {
   const db = getFirestore();
-  await db.collection("jobs").doc(jobId).update({
-    ...updates,
-    updatedAt: new Date(),
-  });
+  await db
+    .collection("jobs")
+    .doc(jobId)
+    .update({
+      ...updates,
+      updatedAt: new Date(),
+    });
 }
