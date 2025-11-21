@@ -16,7 +16,7 @@ coverage
 
 # Firebase Admin SDK private keys
 *firebase-adminsdk*.json
-packages/config/*.json
+firebase/secret/**
 
 # Firebase CLI
 .firebaserc

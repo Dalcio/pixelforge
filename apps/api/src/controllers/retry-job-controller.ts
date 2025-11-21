@@ -1,0 +1,79 @@
+import { Request, Response } from "express";
+import { getQueue } from "../lib/queue-client";
+import { getFirestore } from "../lib/firestore-client";
+import { FieldValue } from "firebase-admin/firestore";
+
+export const retryJobController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      res.status(400).json({ error: "Job ID is required" });
+      return;
+    }
+
+    const db = getFirestore();
+    const jobRef = db.collection("jobs").doc(id);
+    const jobDoc = await jobRef.get();
+
+    if (!jobDoc.exists) {
+      res.status(404).json({ error: "Job not found" });
+      return;
+    }
+
+    const jobData = jobDoc.data();
+
+    // Only allow retry for failed jobs
+    if (jobData?.status !== "failed") {
+      res.status(400).json({
+        error: "Only failed jobs can be retried",
+        currentStatus: jobData?.status,
+      });
+      return;
+    }
+
+    // Reset job to pending state
+    await jobRef.update({
+      status: "pending",
+      progress: 0,
+      error: FieldValue.delete(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    // Re-add job to queue
+    const queue = getQueue();
+    await queue.add(
+      "process-image",
+      {
+        jobId: id,
+        inputUrl: jobData.inputUrl,
+        transformations: jobData.transformations || {},
+      },
+      {
+        jobId: id,
+        removeOnComplete: false,
+        removeOnFail: false,
+      }
+    );
+
+    // Get updated job data
+    const updatedJobDoc = await jobRef.get();
+    const updatedData = updatedJobDoc.data();
+
+    res.status(200).json({
+      id: updatedJobDoc.id,
+      ...updatedData,
+      createdAt: updatedData?.createdAt?.toDate().toISOString(),
+      updatedAt: updatedData?.updatedAt?.toDate().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("[API] Error retrying job:", error);
+    res.status(500).json({
+      error: "Failed to retry job",
+      message: error.message,
+    });
+  }
+};

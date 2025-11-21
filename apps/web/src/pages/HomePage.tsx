@@ -1,16 +1,21 @@
 import { JobSubmitForm } from "../components/JobSubmitForm";
 import { JobList } from "../components/JobList";
 import { useJobList } from "../hooks/use-job-list";
-import { useJobSubmission } from "../hooks/use-job-submission";
+import { retryJob } from "../lib/api-client";
 import type { JobResponse } from "@fluximage/types";
 
 export function HomePage() {
   const { jobs, loading, error, reload } = useJobList();
-  const { submit } = useJobSubmission(reload);
 
   const handleRetryJob = async (job: JobResponse) => {
-    // Create a new job with the same parameters as the failed job
-    await submit(job.inputUrl, job.transformations);
+    try {
+      // Call the retry API endpoint to reset and requeue the existing job
+      await retryJob(job.id);
+      // No need to reload - Firestore real-time listener will update automatically
+    } catch (error: any) {
+      console.error("Failed to retry job:", error);
+      // Optionally show error toast/notification
+    }
   };
 
   return (

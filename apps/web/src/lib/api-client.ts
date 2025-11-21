@@ -77,3 +77,24 @@ export async function listJobs(): Promise<JobListResponse> {
   const res = await fetch(`${API_BASE}/api/jobs`);
   return handleResponse<JobListResponse>(res);
 }
+
+export async function retryJob(id: string): Promise<JobResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/api/jobs/${id}/retry`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    });
+    return handleResponse<JobResponse>(res);
+  } catch (error: any) {
+    // Handle network errors
+    if (
+      error.message.includes("Failed to fetch") ||
+      error.name === "TypeError"
+    ) {
+      throw new Error(
+        "🌐 Cannot connect to server. Please check your internet connection."
+      );
+    }
+    throw error;
+  }
+}
