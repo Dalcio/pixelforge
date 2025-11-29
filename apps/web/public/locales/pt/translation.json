@@ -1,0 +1,14 @@
+{
+  "common": {
+    "hello": "Hello",
+    "welcome": "Welcome to our application",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact"
+  }
+}
