@@ -1,0 +1,14 @@
+{
+  "common": {
+    "hello": "Hola",
+    "welcome": "Bienvenido a nuestra aplicación",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "submit": "Enviar"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "contact": "Contacto"
+  }
+}
