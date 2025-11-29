@@ -62,8 +62,12 @@ export const retryJobController = async (
     res.status(200).json({
       id: updatedJobDoc.id,
       ...updatedData,
-      createdAt: updatedData?.createdAt?.toDate().toISOString(),
-      processedAt: updatedData?.processedAt?.toDate().toISOString(),
+      createdAt: typeof updatedData?.createdAt === 'string' 
+        ? updatedData.createdAt 
+        : updatedData?.createdAt?.toDate?.()?.toISOString(),
+      processedAt: typeof updatedData?.processedAt === 'string'
+        ? updatedData.processedAt
+        : updatedData?.processedAt?.toDate?.()?.toISOString(),
     });
   } catch (error: unknown) {
     const errorMessage =
