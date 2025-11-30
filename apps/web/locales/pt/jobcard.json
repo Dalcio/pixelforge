@@ -1,0 +1,11 @@
+{
+  "image_preview": "Prévia da imagem",
+  "close_preview": "Fechar prévia",
+  "preview_input_image": "Prévia da imagem de entrada",
+  "delete_job": "Excluir trabalho",
+  "input_thumbnail": "Miniatura de entrada",
+  "retry_failed_job": "Tentar novamente trabalho falhado",
+  "retry_job": "Tentar novamente o trabalho",
+  "preview_result": "Prévia do resultado",
+  "download_processed_image": "Baixar imagem processada"
+}

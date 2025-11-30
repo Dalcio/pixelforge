@@ -1,0 +1,23 @@
+{
+  "transform_your_image": "Transforme sua Imagem",
+  "paste_your_image_url_below": "Cole a URL da sua imagem abaixo",
+  "image_url": "URL da Imagem *",
+  "clear_input": "Limpar entrada",
+  "width_px": "Largura (px)",
+  "height_px": "Altura (px)",
+  "quality": "Qualidade:",
+  "flip_v": "Virar V",
+  "flip_h": "Virar H",
+  "blur": "Desfoque:",
+  "90_right": "90° Direita",
+  "270_left": "270° Esquerda",
+  "loading_preview": "Carregando pré-visualização...",
+  "enter_a_valid_image_url": "Insira uma URL de imagem válida",
+  "image_preview": "Pré-visualização da imagem",
+  "unable_to_load_preview": "Não foi possível carregar a pré-visualização",
+  "submitting_job": "Enviando trabalho...",
+  "submit_job": "Enviar trabalho",
+  "processing": "Processando...",
+  "process_image": "Processar Imagem",
+  "job_submitted_successfully": "Trabalho enviado com sucesso"
+}
