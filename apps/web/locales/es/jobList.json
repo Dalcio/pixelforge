@@ -1,0 +1,11 @@
+{
+  "no_jobs_yet": "No hay trabajos aún",
+  "submit_an_image_url": "Envía una URL de imagen arriba para comenzar",
+  "could_not_load_jobs": "No se pudieron cargar los trabajos",
+  "retry_loading_jobs": "Reintentar cargar trabajos",
+  "try_again": "Intenta de nuevo",
+  "loading_jobs": "Cargando trabajos",
+  "job_list": "Lista de trabajos",
+  "recent_jobs": "Trabajos recientes",
+  "refresh_job_list": "Actualizar lista de trabajos"
+}

@@ -1,0 +1,11 @@
+{
+  "no_jobs_yet": "尚无作业",
+  "submit_an_image_url": "在上方提交图像网址以开始",
+  "could_not_load_jobs": "无法加载作业",
+  "retry_loading_jobs": "重试加载作业",
+  "try_again": "再试一次",
+  "loading_jobs": "加载作业中",
+  "job_list": "作业列表",
+  "recent_jobs": "最近的作业",
+  "refresh_job_list": "刷新作业列表"
+}

@@ -1,0 +1,21 @@
+{
+  "transform_your_image": "转换您的图像",
+  "paste_your_image_url": "在下面粘贴您的图像网址",
+  "image_url": "图像网址 *",
+  "clear_input": "清除输入",
+  "width_px": "宽度 (像素)",
+  "height_px": "高度 (像素)",
+  "quality": "质量:",
+  "flip_v": "垂直翻转",
+  "flip_h": "水平翻转",
+  "blur": "模糊:",
+  "90_right": "顺时针90°",
+  "270_left": "逆时针270°",
+  "loading_preview": "加载预览中...",
+  "enter_a_valid_image": "请输入有效的图像网址",
+  "image_preview": "图像预览",
+  "unable_to_load_preview": "无法加载预览",
+  "processing": "处理中...",
+  "process_image": "处理图像",
+  "job_submitted_successfully": "作业提交成功"
+}

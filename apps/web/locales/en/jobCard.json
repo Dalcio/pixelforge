@@ -1,0 +1,11 @@
+{
+  "image_preview": "Image preview",
+  "close_preview": "Close preview",
+  "preview_input_image": "Preview input image",
+  "delete_job": "Delete job",
+  "input_thumbnail": "Input thumbnail",
+  "retry_failed_job": "Retry failed job",
+  "retry_job": "Retry Job",
+  "preview_result": "Preview result",
+  "download_processed_image": "Download processed image"
+}

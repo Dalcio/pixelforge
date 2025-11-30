@@ -1,0 +1,11 @@
+{
+  "image_preview": "图像预览",
+  "close_preview": "关闭预览",
+  "preview_input_image": "预览输入图像",
+  "delete_job": "删除作业",
+  "input_thumbnail": "输入缩略图",
+  "retry_failed_job": "重试失败的作业",
+  "retry_job": "重试作业",
+  "preview_result": "预览结果",
+  "download_processed_image": "下载处理后的图像"
+}
