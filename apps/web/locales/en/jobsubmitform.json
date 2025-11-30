@@ -1,0 +1,23 @@
+{
+  "transform_your_image": "Transform your Image",
+  "paste_your_image_url_below": "Paste your image URL below",
+  "image_url": "Image URL *",
+  "clear_input": "Clear input",
+  "width_px": "Width (px)",
+  "height_px": "Height (px)",
+  "quality": "Quality:",
+  "flip_v": "Flip V",
+  "flip_h": "Flip H",
+  "blur": "Blur:",
+  "90_right": "90° Right",
+  "270_left": "270° Left",
+  "loading_preview": "Loading preview...",
+  "enter_a_valid_image_url": "Enter a valid image URL",
+  "image_preview": "Image preview",
+  "unable_to_load_preview": "Unable to load preview",
+  "submitting_job": "Submitting job...",
+  "submit_job": "Submit job",
+  "processing": "Processing...",
+  "process_image": "Process Image",
+  "job_submitted_successfully": "Job submitted successfully"
+}
